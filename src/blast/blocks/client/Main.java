@@ -75,6 +75,7 @@ public class Main implements EntryPoint {
                 final String selection = shapeSelector.getItemText(shapeSelector.getSelectedIndex());
                 final Shape shape = Shape.valueOf(selection);
                 CONTROL.updateShape(shape);
+                surface.setFocus(true);
             }
         });
 

@@ -21,6 +21,7 @@ import gwt.g3d.resources.client.Texture2DResource;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 import blast.blocks.client.mesh.Boxes;
+import blast.blocks.client.mesh.Grid;
 import blast.blocks.shared.enums.Key;
 import blast.blocks.shared.enums.Shape;
 import com.google.gwt.core.client.GWT;
@@ -34,37 +35,29 @@ public class DimensionControl extends AbstractThreeD {
     private static final double ROTATION_DURATION = 200D;
 
     private final Matrix3f nMatrix = new Matrix3f();
-    private Texture2D texture;
 
-    private static final float INITIAL_Z_SPEED = -15F;
-    private static float translateZ = INITIAL_Z_SPEED;
+    private static final float TRANSLATE_Z = -10F;
 
     private static final boolean IS_BLENDING = true;
     private static final boolean IS_LIGHTING = true;
 
     private static final float ALPHA = 0.5F;
 
-    private static final float AMBIENT_R = 0.2F;
-    private static final float AMBIENT_G = 0.2F;
-    private static final float AMBIENT_B = 0.2F;
-    private static final Vector3f AMBIENT_VECTOR = new Vector3f(AMBIENT_R, AMBIENT_G, AMBIENT_B);
-
-    private static final float DIRECTION_X = -0.25F;
-    private static final float DIRECTION_Y = -0.25F;
-    private static final float DIRECTION_Z = -1.00F;
-    private static final Vector3f DIRECTION_VECTOR = new Vector3f(DIRECTION_X, DIRECTION_Y, DIRECTION_Z);
-
-    private static final float COLOR_R = 0.2F;
-    private static final float COLOR_G = 0.8F;
-    private static final float COLOR_B = 0.2F;
-    private static final Vector3f COLOR_VECTOR = new Vector3f(COLOR_R, COLOR_G, COLOR_B);
+    private static final Vector3f LIGHTNING_DIRECTION_VECTOR = new Vector3f(-0.25F, -0.25F, -1.00F);
+    private static final Vector3f AMBIENT_COLOR_VECTOR = new Vector3f(0.2F, 0.2F, 0.2F);
+    private static final Vector3f GRID_COLOR_VECTOR = new Vector3f(1.0F, 1.0F, 1.0F);
+    private static final Vector3f BLOCK_COLOR_VECTOR = new Vector3f(0.2F, 0.8F, 0.2F);
 
     private static final float FOV_Y = 45F;
     private static final float ASPECT = 1F;
     private static final float Z_NEAR = 0.1F;
     private static final float Z_FAR = 100F;
 
-    private StaticMesh mesh;
+    private Texture2D gridTexture;
+    private Texture2D blockTexture;
+    private StaticMesh gridMesh;
+    private StaticMesh blockMesh;
+
     private double lastTime = 0.0D;
     private double elapsed = 0.0D;
     private double rotationTime = 0.0D;
@@ -88,8 +81,10 @@ public class DimensionControl extends AbstractThreeD {
 
     @Override
     public final void dispose() {
-        mesh.dispose();
-        texture.dispose();
+        gridMesh.dispose();
+        blockMesh.dispose();
+        gridTexture.dispose();
+        blockTexture.dispose();
         keyboardManager.unmanage();
         getShader().dispose();
 
@@ -125,23 +120,31 @@ public class DimensionControl extends AbstractThreeD {
         } else {
             handleKeys();
         }
-        drawCube();
+
+        if (gridTexture != null) {
+            gridTexture.bind();
+        }
+        drawGrid();
+        if (blockTexture != null) {
+            blockTexture.bind();
+        }
+        drawBlock();
     }
 
     public final void updateShape(final Shape shape) {
-        if (mesh != null) {
-            mesh.dispose();
+        if (blockMesh != null) {
+            blockMesh.dispose();
         }
-        mesh = new StaticMesh(getGl(), Boxes.getMesh(shape));
-        mesh.setPositionIndex(getShader().getAttributeLocation("aVertexPosition"));
-        mesh.setNormalIndex(getShader().getAttributeLocation("aVertexNormal"));
-        mesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
+        blockMesh = new StaticMesh(getGl(), Boxes.getMesh(shape));
+        blockMesh.setPositionIndex(getShader().getAttributeLocation("aVertexPosition"));
+        blockMesh.setNormalIndex(getShader().getAttributeLocation("aVertexNormal"));
+        blockMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
     }
 
     @Override
     protected final void initImpl() {
         getSurface().setFocus(true);
-        initImpl(Shape.BranchTetracube);
+        initImpl(Shape.LeftScrewTetracube);
     }
 
     private void initImpl(final Shape shape) {
@@ -154,42 +157,79 @@ public class DimensionControl extends AbstractThreeD {
             return;
         }
 
-        translateZ = INITIAL_Z_SPEED;
-
         keyboardManager.manage(getSurface());
         keyboardManager.setPreventDefault(true);
 
-        PROJECTION.pushIdentity();
-        PROJECTION.perspective(FOV_Y, ASPECT, Z_NEAR, Z_FAR);
-        getGl().uniformMatrix(getShader().getUniformLocation("uPMatrix"), PROJECTION.get());
-        PROJECTION.pop();
-
-        updateShape(shape);
-
-        getGl().activeTexture(TextureUnit.TEXTURE0);
-        getGl().uniform1i(getShader().getUniformLocation("uSampler"), 0);
-
-        Resources.INSTANCE.glass().getTexture(new ResourceCallback<Texture2DResource>() {
+        Resources.INSTANCE.grid().getTexture(new ResourceCallback<Texture2DResource>() {
             @Override
             public void onSuccess(final Texture2DResource resource) {
-                texture = resource.createTexture(getGl());
+                gridTexture = resource.createTexture(getGl());
             }
             @Override
             public void onError(final ResourceException e) {
                 Window.alert("Fail loading texture.");
             }
         });
+        Resources.INSTANCE.block().getTexture(new ResourceCallback<Texture2DResource>() {
+            @Override
+            public void onSuccess(final Texture2DResource resource) {
+                blockTexture = resource.createTexture(getGl());
+            }
+            @Override
+            public void onError(final ResourceException e) {
+                Window.alert("Fail loading texture.");
+            }
+        });
+
+        getGl().activeTexture(TextureUnit.TEXTURE0);
+        getGl().uniform1i(getShader().getUniformLocation("uSampler"), 0);
+
+        PROJECTION.pushIdentity();
+        PROJECTION.perspective(FOV_Y, ASPECT, Z_NEAR, Z_FAR);
+        getGl().uniformMatrix(getShader().getUniformLocation("uPMatrix"), PROJECTION.get());
+        PROJECTION.pop();
+
+        //Grid:
+        gridMesh = new StaticMesh(getGl(), Grid.makeGrid());
+        gridMesh.setPositionIndex(getShader().getAttributeLocation("aVertexPosition"));
+        gridMesh.setNormalIndex(getShader().getAttributeLocation("aVertexNormal"));
+        gridMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
+
+        //Block
+        updateShape(shape);
+
         lastTime = System.currentTimeMillis();
     }
 
-    private void drawCube() {
+    private void drawGrid() {
+        PROJECTION.push();
+        PROJECTION.translate(0, 0, -17.25F);
+        setProjectionMatrixUniforms();
+        PROJECTION.pop();
+
+        prepareBlenderAndLighting(GRID_COLOR_VECTOR);
+        gridMesh.draw();
+    }
+
+    private void drawBlock() {
+//      System.out.println(xRot + " " + yRot + " " + zRot);
+
+
         MODELVIEW.push();
-        MODELVIEW.translate(0, 0, translateZ);
+        MODELVIEW.translate(0F, 0F, -10F);
         MODELVIEW.rotateX((float) Math.toRadians(xRot));
+//        MODELVIEW.translate(0F, 0F, 0F);
         MODELVIEW.rotateY((float) Math.toRadians(yRot));
+//        MODELVIEW.translate(0F, 0F, 0F);
         MODELVIEW.rotateZ((float) Math.toRadians(zRot));
-        setMatrixUniforms();
+        setModelMatrixUniforms();
         MODELVIEW.pop();
+
+        prepareBlenderAndLighting(BLOCK_COLOR_VECTOR);
+        blockMesh.draw();
+    }
+
+    private void prepareBlenderAndLighting(final Vector3f colorVector) {
         if (IS_BLENDING) {
             getGl().blendFunc(BlendingFactorSrc.SRC_ALPHA, BlendingFactorDest.ONE);
             getGl().enable(EnableCap.BLEND);
@@ -201,21 +241,25 @@ public class DimensionControl extends AbstractThreeD {
         }
         if (IS_LIGHTING) {
             getGl().uniform1i(getShader().getUniformLocation("uUseLighting"), 1);
-            getGl().uniform(getShader().getUniformLocation("uAmbientColor"), AMBIENT_VECTOR);
-            final Vector3f lightingDirection = DIRECTION_VECTOR;
+            getGl().uniform(getShader().getUniformLocation("uAmbientColor"), AMBIENT_COLOR_VECTOR);
+            final Vector3f lightingDirection = LIGHTNING_DIRECTION_VECTOR;
             lightingDirection.normalize();
-//          lightingDirection.scale(-1); //might flicker
             getGl().uniform(getShader().getUniformLocation("uLightingDirection"), lightingDirection);
-            getGl().uniform(getShader().getUniformLocation("uDirectionalColor"), COLOR_VECTOR);
+            getGl().uniform(getShader().getUniformLocation("uDirectionalColor"), colorVector);
         } else {
             getGl().uniform1i(getShader().getUniformLocation("uUseLighting"), 0);
         }
-        mesh.draw();
     }
 
-    private void setMatrixUniforms() {
+    private void setModelMatrixUniforms() {
         getGl().uniformMatrix(getShader().getUniformLocation("uMVMatrix"), MODELVIEW.get());
         MODELVIEW.getInvertTranspose(nMatrix);
+        getGl().uniformMatrix(getShader().getUniformLocation("uNMatrix"), nMatrix);
+    }
+
+    private void setProjectionMatrixUniforms() {
+        getGl().uniformMatrix(getShader().getUniformLocation("uMVMatrix"), PROJECTION.get());
+        PROJECTION.getInvertTranspose(nMatrix);
         getGl().uniformMatrix(getShader().getUniformLocation("uNMatrix"), nMatrix);
     }
 
@@ -262,8 +306,6 @@ public class DimensionControl extends AbstractThreeD {
     }
 
     private void prepareRotation() {
-        System.out.println("-From: " + rotateFromX + " " + rotateFromY + " " + rotateFromZ);
-        System.out.println("-To: " + rotateToX + " " + rotateToY + " " + rotateToZ);
         isRotating = true;
         if (rotateToX > DEGREES_IN_DIRCLE) {
             rotateToX = rotateToX % DEGREES_IN_DIRCLE;
@@ -286,8 +328,8 @@ public class DimensionControl extends AbstractThreeD {
             rotateFromZ += DEGREES_IN_DIRCLE;
             rotateToZ = DEGREES_IN_DIRCLE + rotateToZ;
         }
-        System.out.println("From: " + rotateFromX + " " + rotateFromY + " " + rotateFromZ);
-        System.out.println(" To: " + rotateToX + " " + rotateToY + " " + rotateToZ);
+//        System.out.println("From: " + rotateFromX + " " + rotateFromY + " " + rotateFromZ);
+//        System.out.println("To: " + rotateToX + " " + rotateToY + " " + rotateToZ);
         rotationTime = 0.0D;
     }
 
@@ -297,9 +339,13 @@ public class DimensionControl extends AbstractThreeD {
         ShaderResource shader();
         @Source("DimensionControl.java")
         ExternalTextResource source();
+        @Source("images/GridTexture.png")
+        @MagFilter(TextureMagFilter.LINEAR)
+        @MinFilter(TextureMinFilter.LINEAR)
+        ExternalTexture2DResource grid();
         @Source("images/BlockTexture.png")
         @MagFilter(TextureMagFilter.LINEAR)
         @MinFilter(TextureMinFilter.LINEAR)
-        ExternalTexture2DResource glass();
+        ExternalTexture2DResource block();
     }
 }
