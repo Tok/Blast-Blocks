@@ -80,22 +80,21 @@ public final class Boxes {
         };
 
         final List<Dir> normalsDir = new ArrayList<Dir>();
-        normalsDir.add(Dir.valueOf(Direction.Front, 0));  // Left Front face
-        normalsDir.add(Dir.valueOf(Direction.Front, 2));  // Right Front face
-        normalsDir.add(Dir.valueOf(Direction.Front, 0));  // Upper Front face
-        normalsDir.add(Dir.valueOf(Direction.Back, 2));   // Inner Back face
-        normalsDir.add(Dir.valueOf(Direction.Back, 2));   // Outer Back face
-        normalsDir.add(Dir.valueOf(Direction.Top, 0));    // Left Top face
-        normalsDir.add(Dir.valueOf(Direction.Top, 2));    // Upper Top face
-        normalsDir.add(Dir.valueOf(Direction.Top, 0));    // Near Top face
-        normalsDir.add(Dir.valueOf(Direction.Bottom, 2)); // Far Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Bottom, 2)); // Near Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Right, 2));  // Lower Right face
-        normalsDir.add(Dir.valueOf(Direction.Right, 2));  // Upper Right face
-        normalsDir.add(Dir.valueOf(Direction.Left, 2));   // Outer Left face
-        normalsDir.add(Dir.valueOf(Direction.Left, 0));   // Far Left face
-        normalsDir.add(Dir.valueOf(Direction.Left, 0));   // Near Left face
-
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Left Front face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Right Front face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Upper Front face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Inner Back face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Outer Back face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Left Top face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Upper Top face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Near Top face
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Far Bottom face
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Near Bottom face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Lower Right face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Upper Right face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Outer Left face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Far Left face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Near Left face
         final float[] normals = getNormalsFor(normalsDir);
 
         return new MeshData(verts, getTriangles(normalsDir.size()), normals, coords);
@@ -148,18 +147,18 @@ public final class Boxes {
         };
 
         final List<Dir> normalsDir = new ArrayList<Dir>();
-        normalsDir.add(Dir.valueOf(Direction.Front, 2));  // Lower Front face
-        normalsDir.add(Dir.valueOf(Direction.Front, 2));  // Upper Front face
-        normalsDir.add(Dir.valueOf(Direction.Back, 0));   // Inner Back face
-        normalsDir.add(Dir.valueOf(Direction.Back, 2));   // Outer Back face
-        normalsDir.add(Dir.valueOf(Direction.Top, 0));    // Lower Top face
-        normalsDir.add(Dir.valueOf(Direction.Top, 2));    // Upper Top face
-        normalsDir.add(Dir.valueOf(Direction.Bottom, 2)); // Lower Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Bottom, 0)); // Upper Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Right, 2));  // Lower Right face
-        normalsDir.add(Dir.valueOf(Direction.Right, 2));  // Upper Right face
-        normalsDir.add(Dir.valueOf(Direction.Left, 2));   // Lower Left face
-        normalsDir.add(Dir.valueOf(Direction.Left, 0));   // Upper Left face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Lower Front face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Upper Front face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Inner Back face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Outer Back face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Lower Top face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Upper Top face
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Lower Bottom face
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Upper Bottom face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Lower Right face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Upper Right face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Lower Left face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Upper Left face
         final float[] normals = getNormalsFor(normalsDir);
 
         return new MeshData(verts, getTriangles(normalsDir.size()), normals, coords);
@@ -197,18 +196,18 @@ public final class Boxes {
         };
 
         final List<Dir> normalsDir = new ArrayList<Dir>();
-        normalsDir.add(Dir.valueOf(Direction.Front, 1));  // Lower Front face
-        normalsDir.add(Dir.valueOf(Direction.Front, 1));  // Upper Front face
-        normalsDir.add(Dir.valueOf(Direction.Back, 1));   // Lower Back face
-        normalsDir.add(Dir.valueOf(Direction.Back, 1));   // Upper Back face
-        normalsDir.add(Dir.valueOf(Direction.Top, 0));    // Lower Top face
-        normalsDir.add(Dir.valueOf(Direction.Top, 2));    // Upper Top face
-        normalsDir.add(Dir.valueOf(Direction.Top, 0));    // Lower Top face
-        normalsDir.add(Dir.valueOf(Direction.Bottom, 2)); // Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Right, 3));  // Outer Right face
-        normalsDir.add(Dir.valueOf(Direction.Right, 1));  // Inner Right face
-        normalsDir.add(Dir.valueOf(Direction.Left, 3));   // Outer Left face
-        normalsDir.add(Dir.valueOf(Direction.Left, 1));   // Inner Left face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Lower Front face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Upper Front face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Lower Back face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Upper Back face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Lower Top face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Upper Top face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Lower Top face
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Bottom face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Outer Right face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Inner Right face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Outer Left face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Inner Left face
         final float[] normals = getNormalsFor(normalsDir);
 
         return new MeshData(verts, getTriangles(normalsDir.size()), normals, coords);
@@ -246,18 +245,18 @@ public final class Boxes {
         };
 
         final List<Dir> normalsDir = new ArrayList<Dir>();
-        normalsDir.add(Dir.valueOf(Direction.Front, 1));  // Lower Front face
-        normalsDir.add(Dir.valueOf(Direction.Front, 1));  // Upper Front face
-        normalsDir.add(Dir.valueOf(Direction.Back, 1));   // Lower Back face
-        normalsDir.add(Dir.valueOf(Direction.Back, 1));   // Upper Back face
-        normalsDir.add(Dir.valueOf(Direction.Top, 0));    // Lower Top face
-        normalsDir.add(Dir.valueOf(Direction.Top, 2));    // Upper Top face
-        normalsDir.add(Dir.valueOf(Direction.Bottom, 2)); // Lower Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Bottom, 0)); // Upper Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Right, 3));  // Outer Right face
-        normalsDir.add(Dir.valueOf(Direction.Right, 1));  // Inner Right face
-        normalsDir.add(Dir.valueOf(Direction.Left, 3));   // Outer Left face
-        normalsDir.add(Dir.valueOf(Direction.Left, 1));   // Inner Left face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Lower Front face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Upper Front face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Lower Back face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Upper Back face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Lower Top face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Upper Top face
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Lower Bottom face
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Upper Bottom face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Outer Right face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Inner Right face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Outer Left face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Inner Left face
         final float[] normals = getNormalsFor(normalsDir);
 
         return new MeshData(verts, getTriangles(normalsDir.size()), normals, coords);
@@ -291,16 +290,16 @@ public final class Boxes {
         };
 
         final List<Dir> normalsDir = new ArrayList<Dir>();
-        normalsDir.add(Dir.valueOf(Direction.Front, 1));  // Lower Front face
-        normalsDir.add(Dir.valueOf(Direction.Front, 1));  // Upper Front face
-        normalsDir.add(Dir.valueOf(Direction.Back, 1));   // Lower Back face
-        normalsDir.add(Dir.valueOf(Direction.Back, 1));   // Upper Back face
-        normalsDir.add(Dir.valueOf(Direction.Top, -1));   // Lower Top face
-        normalsDir.add(Dir.valueOf(Direction.Top, 3));    // Upper Top face
-        normalsDir.add(Dir.valueOf(Direction.Bottom, 3)); // Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Right, 2));  // Right face
-        normalsDir.add(Dir.valueOf(Direction.Left, 2));   // Outer Left face
-        normalsDir.add(Dir.valueOf(Direction.Left, 0));   // Inner Left face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Lower Front face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Upper Front face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Lower Back face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Upper Back face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));   // Lower Top face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Upper Top face
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Bottom face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Right face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Outer Left face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Inner Left face
         final float[] normals = getNormalsFor(normalsDir);
 
         return new MeshData(verts, getTriangles(normalsDir.size()), normals, coords);
@@ -334,16 +333,16 @@ public final class Boxes {
         };
 
         final List<Dir> normalsDir = new ArrayList<Dir>();
-        normalsDir.add(Dir.valueOf(Direction.Front, 1));  // Lower Front face
-        normalsDir.add(Dir.valueOf(Direction.Front, 1));  // Upper Front face
-        normalsDir.add(Dir.valueOf(Direction.Back, 1));   // Lower Back face
-        normalsDir.add(Dir.valueOf(Direction.Back, 1));   // Upper Back face
-        normalsDir.add(Dir.valueOf(Direction.Top, 0));    // Lower Top face
-        normalsDir.add(Dir.valueOf(Direction.Top, 2));    // Upper Top face
-        normalsDir.add(Dir.valueOf(Direction.Bottom, 2)); // Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Right, 2));  // Right face
-        normalsDir.add(Dir.valueOf(Direction.Left, 2));   // Outer Left face
-        normalsDir.add(Dir.valueOf(Direction.Left, 0));   // Inner Left face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Lower Front face
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Upper Front face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Lower Back face
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));   // Upper Back face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Lower Top face
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Upper Top face
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Bottom face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Right face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Outer Left face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Inner Left face
         final float[] normals = getNormalsFor(normalsDir);
 
         return new MeshData(verts, getTriangles(normalsDir.size()), normals, coords);
@@ -389,12 +388,12 @@ public final class Boxes {
         };
 
         final List<Dir> normalsDir = new ArrayList<Dir>();
-        normalsDir.add(Dir.valueOf(Direction.Front, d));
-        normalsDir.add(Dir.valueOf(Direction.Back, d));
-        normalsDir.add(Dir.valueOf(Direction.Top, h));
-        normalsDir.add(Dir.valueOf(Direction.Bottom, h));
-        normalsDir.add(Dir.valueOf(Direction.Right, w));
-        normalsDir.add(Dir.valueOf(Direction.Left, w));
+        normalsDir.add(Dir.valueOf(Direction.Front, 1F));
+        normalsDir.add(Dir.valueOf(Direction.Back, 1F));
+        normalsDir.add(Dir.valueOf(Direction.Top, 1F));
+        normalsDir.add(Dir.valueOf(Direction.Bottom, 1F));
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));
         final float[] normals = getNormalsFor(normalsDir);
 
         return new MeshData(boxVerts, getTriangles(6), normals, coords);

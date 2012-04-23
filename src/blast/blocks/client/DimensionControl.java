@@ -232,7 +232,8 @@ public class DimensionControl extends AbstractThreeD {
         ShaderResource shader();
         @Source("DimensionControl.java")
         ExternalTextResource source();
-        @Source("images/lightGray.gif")
+        @Source("images/BlockTexture.png")
+//      @Source("images/BlockTextureFibonacci.png")
         @MagFilter(TextureMagFilter.LINEAR)
         @MinFilter(TextureMinFilter.LINEAR)
         ExternalTexture2DResource glass();
