@@ -5,9 +5,12 @@ import gwt.g3d.client.gl2.GL2;
 import gwt.g3d.client.gl2.GLDisposable;
 import gwt.g3d.client.shader.AbstractShader;
 import com.google.gwt.resources.client.ClientBundleWithLookup;
-import com.google.gwt.user.client.ui.Widget;
 
 public abstract class AbstractThreeD implements GLDisposable {
+    protected static final float MILLISECONDS_PER_SECOND = 1000.0F;
+    protected static final float DEGREES_IN_DIRCLE = 360F;
+    protected static final float RIGHT_ANGLE = 90F;
+
     private GL2 gl;
     private Surface3D surface;
     private AbstractShader shader;
@@ -43,10 +46,6 @@ public abstract class AbstractThreeD implements GLDisposable {
     protected abstract void initImpl();
 
     public void update() {
-    }
-
-    public final Widget getExtraWidget() {
-        return null;
     }
 
     public abstract ClientBundleWithLookup getClientBundle();

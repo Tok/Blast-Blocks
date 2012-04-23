@@ -20,9 +20,10 @@ import gwt.g3d.resources.client.ShaderResource;
 import gwt.g3d.resources.client.Texture2DResource;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
+import blast.blocks.client.mesh.Boxes;
+import blast.blocks.shared.enums.Key;
 import blast.blocks.shared.enums.Shape;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.resources.client.ClientBundleWithLookup;
 import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.resources.client.ResourceCallback;
@@ -30,18 +31,12 @@ import com.google.gwt.resources.client.ResourceException;
 import com.google.gwt.user.client.Window;
 
 public class DimensionControl extends AbstractThreeD {
+    private static final double ROTATION_DURATION = 200D;
+
     private final Matrix3f nMatrix = new Matrix3f();
     private Texture2D texture;
 
-    private static final float MILLISECONDS_PER_SECOND = 1000.0F;
-
-    private static final float Z_CHANGE = 0.15F;
     private static final float INITIAL_Z_SPEED = -15F;
-    private static final float INITIAL_X_SPEED = 15F;
-    private static final float INITIAL_Y_SPEED = -15F;
-
-    private static float xSpeed = INITIAL_Z_SPEED;
-    private static float ySpeed = INITIAL_Z_SPEED;
     private static float translateZ = INITIAL_Z_SPEED;
 
     private static final boolean IS_BLENDING = true;
@@ -70,9 +65,20 @@ public class DimensionControl extends AbstractThreeD {
     private static final float Z_FAR = 100F;
 
     private StaticMesh mesh;
-    private double lastTime;
-    private float xRot;
-    private float yRot;
+    private double lastTime = 0.0D;
+    private double elapsed = 0.0D;
+    private double rotationTime = 0.0D;
+
+    private boolean isRotating = false;
+    private float xRot = 0.0F;
+    private float yRot = 0.0F;
+    private float zRot = 0.0F;
+    private float rotateFromX = 0.0F;
+    private float rotateToX = 0.0F;
+    private float rotateFromY = 0.0F;
+    private float rotateToY = 0.0F;
+    private float rotateFromZ = 0.0F;
+    private float rotateToZ = 0.0F;
 
     private final KeyboardManager keyboardManager = new KeyboardManager();
 
@@ -100,18 +106,32 @@ public class DimensionControl extends AbstractThreeD {
     public final void update() {
         getGl().clear(ClearBufferMask.COLOR_BUFFER_BIT, ClearBufferMask.DEPTH_BUFFER_BIT);
 
-        handleKeys();
-        drawCube();
-
         double currTime = System.currentTimeMillis();
-        double elapsed = currTime - lastTime;
-        xRot += (xSpeed * elapsed) / MILLISECONDS_PER_SECOND;
-        yRot += (ySpeed * elapsed) / MILLISECONDS_PER_SECOND;
+        elapsed = currTime - lastTime;
         lastTime = currTime;
+
+        if (isRotating) {
+            rotationTime += elapsed;
+            if (rotationTime >= ROTATION_DURATION) {
+                xRot = rotateToX;
+                yRot = rotateToY;
+                zRot = rotateToZ;
+                isRotating = false;
+            } else {
+                xRot = rotateFromX + Double.valueOf((((rotateToX - rotateFromX) * rotationTime) / ROTATION_DURATION)).floatValue();
+                yRot = rotateFromY + Double.valueOf((((rotateToY - rotateFromY) * rotationTime) / ROTATION_DURATION)).floatValue();
+                zRot = rotateFromZ + Double.valueOf((((rotateToZ - rotateFromZ) * rotationTime) / ROTATION_DURATION)).floatValue();
+            }
+        } else {
+            handleKeys();
+        }
+        drawCube();
     }
 
     public final void updateShape(final Shape shape) {
-        mesh.dispose();
+        if (mesh != null) {
+            mesh.dispose();
+        }
         mesh = new StaticMesh(getGl(), Boxes.getMesh(shape));
         mesh.setPositionIndex(getShader().getAttributeLocation("aVertexPosition"));
         mesh.setNormalIndex(getShader().getAttributeLocation("aVertexNormal"));
@@ -120,8 +140,8 @@ public class DimensionControl extends AbstractThreeD {
 
     @Override
     protected final void initImpl() {
+        getSurface().setFocus(true);
         initImpl(Shape.BranchTetracube);
-//      initImpl(Shape.Cube);
     }
 
     private void initImpl(final Shape shape) {
@@ -134,10 +154,6 @@ public class DimensionControl extends AbstractThreeD {
             return;
         }
 
-        xSpeed = INITIAL_X_SPEED;
-        ySpeed = INITIAL_Y_SPEED;
-        xRot = 0;
-        yRot = 0;
         translateZ = INITIAL_Z_SPEED;
 
         keyboardManager.manage(getSurface());
@@ -148,10 +164,7 @@ public class DimensionControl extends AbstractThreeD {
         getGl().uniformMatrix(getShader().getUniformLocation("uPMatrix"), PROJECTION.get());
         PROJECTION.pop();
 
-        mesh = new StaticMesh(getGl(), Boxes.getMesh(shape));
-        mesh.setPositionIndex(getShader().getAttributeLocation("aVertexPosition"));
-        mesh.setNormalIndex(getShader().getAttributeLocation("aVertexNormal"));
-        mesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
+        updateShape(shape);
 
         getGl().activeTexture(TextureUnit.TEXTURE0);
         getGl().uniform1i(getShader().getUniformLocation("uSampler"), 0);
@@ -174,6 +187,7 @@ public class DimensionControl extends AbstractThreeD {
         MODELVIEW.translate(0, 0, translateZ);
         MODELVIEW.rotateX((float) Math.toRadians(xRot));
         MODELVIEW.rotateY((float) Math.toRadians(yRot));
+        MODELVIEW.rotateZ((float) Math.toRadians(zRot));
         setMatrixUniforms();
         MODELVIEW.pop();
         if (IS_BLENDING) {
@@ -206,24 +220,75 @@ public class DimensionControl extends AbstractThreeD {
     }
 
     private void handleKeys() {
-        if (keyboardManager.isButtonDown(KeyCodes.KEY_PAGEUP)) {
-            translateZ += Z_CHANGE;
+        if (isRotating) {
+            return;
         }
-        if (keyboardManager.isButtonDown(KeyCodes.KEY_PAGEDOWN)) {
-            translateZ -= Z_CHANGE;
+        rotateFromX = xRot;
+        rotateToX = xRot;
+        rotateFromY = yRot;
+        rotateToY = yRot;
+        rotateFromZ = zRot;
+        rotateToZ = zRot;
+        if (keyboardManager.isButtonDown(Key.Q.getKeyCode())) {
+            rotateFromX = xRot % DEGREES_IN_DIRCLE;
+            rotateToX = (xRot + RIGHT_ANGLE);
+            prepareRotation();
         }
-        if (keyboardManager.isButtonDown(KeyCodes.KEY_LEFT)) {
-            ySpeed--;
+        if (keyboardManager.isButtonDown(Key.W.getKeyCode())) {
+            rotateFromY = yRot % DEGREES_IN_DIRCLE;
+            rotateToY = (yRot + RIGHT_ANGLE);
+            prepareRotation();
         }
-        if (keyboardManager.isButtonDown(KeyCodes.KEY_RIGHT)) {
-            ySpeed++;
+        if (keyboardManager.isButtonDown(Key.E.getKeyCode())) {
+            rotateFromZ = zRot % DEGREES_IN_DIRCLE;
+            rotateToZ = (zRot + RIGHT_ANGLE);
+            prepareRotation();
         }
-        if (keyboardManager.isButtonDown(KeyCodes.KEY_UP)) {
-            xSpeed--;
+        if (keyboardManager.isButtonDown(Key.A.getKeyCode())) {
+            rotateFromX = xRot % DEGREES_IN_DIRCLE;
+            rotateToX = (xRot - RIGHT_ANGLE);
+            prepareRotation();
         }
-        if (keyboardManager.isButtonDown(KeyCodes.KEY_DOWN)) {
-            xSpeed++;
+        if (keyboardManager.isButtonDown(Key.S.getKeyCode())) {
+            rotateFromY = yRot % DEGREES_IN_DIRCLE;
+            rotateToY = (yRot - RIGHT_ANGLE);
+            prepareRotation();
         }
+        if (keyboardManager.isButtonDown(Key.D.getKeyCode())) {
+            rotateFromZ = zRot % DEGREES_IN_DIRCLE;
+            rotateToZ = (zRot - RIGHT_ANGLE);
+            prepareRotation();
+        }
+    }
+
+    private void prepareRotation() {
+        System.out.println("-From: " + rotateFromX + " " + rotateFromY + " " + rotateFromZ);
+        System.out.println("-To: " + rotateToX + " " + rotateToY + " " + rotateToZ);
+        isRotating = true;
+        if (rotateToX > DEGREES_IN_DIRCLE) {
+            rotateToX = rotateToX % DEGREES_IN_DIRCLE;
+        }
+        if (rotateToX < 0) {
+            rotateFromX += DEGREES_IN_DIRCLE;
+            rotateToX = DEGREES_IN_DIRCLE + rotateToX;
+        }
+        if (rotateToY > DEGREES_IN_DIRCLE) {
+            rotateToY = rotateToY % DEGREES_IN_DIRCLE;
+        }
+        if (rotateToY < 0) {
+            rotateFromY += DEGREES_IN_DIRCLE;
+            rotateToY = DEGREES_IN_DIRCLE + rotateToY;
+        }
+        if (rotateToZ > DEGREES_IN_DIRCLE) {
+            rotateToZ = rotateToZ % DEGREES_IN_DIRCLE;
+        }
+        if (rotateToZ < 0) {
+            rotateFromZ += DEGREES_IN_DIRCLE;
+            rotateToZ = DEGREES_IN_DIRCLE + rotateToZ;
+        }
+        System.out.println("From: " + rotateFromX + " " + rotateFromY + " " + rotateFromZ);
+        System.out.println(" To: " + rotateToX + " " + rotateToY + " " + rotateToZ);
+        rotationTime = 0.0D;
     }
 
     interface Resources extends ClientBundleWithLookup {
@@ -233,7 +298,6 @@ public class DimensionControl extends AbstractThreeD {
         @Source("DimensionControl.java")
         ExternalTextResource source();
         @Source("images/BlockTexture.png")
-//      @Source("images/BlockTextureFibonacci.png")
         @MagFilter(TextureMagFilter.LINEAR)
         @MinFilter(TextureMinFilter.LINEAR)
         ExternalTexture2DResource glass();

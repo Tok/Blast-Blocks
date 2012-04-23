@@ -3,7 +3,7 @@ package blast.blocks;
 import gwt.g3d.client.primitive.MeshData;
 import gwt.g3d.client.primitive.PrimitiveFactory;
 import junit.framework.TestCase;
-import blast.blocks.client.Boxes;
+import blast.blocks.client.mesh.Boxes;
 import blast.blocks.shared.enums.Shape;
 
 public class BoxesTester extends TestCase {
