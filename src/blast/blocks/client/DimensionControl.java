@@ -23,6 +23,7 @@ import javax.vecmath.Vector3f;
 import blast.blocks.client.mesh.Boxes;
 import blast.blocks.client.mesh.Grid;
 import blast.blocks.shared.enums.Key;
+import blast.blocks.shared.enums.RotationType;
 import blast.blocks.shared.enums.Shape;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundleWithLookup;
@@ -30,6 +31,7 @@ import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.resources.client.ResourceCallback;
 import com.google.gwt.resources.client.ResourceException;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Label;
 
 public class DimensionControl extends AbstractThreeD {
     private static final double ROTATION_DURATION = 200D;
@@ -62,6 +64,7 @@ public class DimensionControl extends AbstractThreeD {
     private double elapsed = 0.0D;
     private double rotationTime = 0.0D;
 
+    private RotationType rotationType = RotationType.NONE;
     private boolean isRotating = false;
     private float xRot = 0.0F;
     private float yRot = 0.0F;
@@ -108,6 +111,7 @@ public class DimensionControl extends AbstractThreeD {
         if (isRotating) {
             rotationTime += elapsed;
             if (rotationTime >= ROTATION_DURATION) {
+                rotationType = RotationType.NONE;
                 xRot = rotateToX;
                 yRot = rotateToY;
                 zRot = rotateToZ;
@@ -212,16 +216,16 @@ public class DimensionControl extends AbstractThreeD {
     }
 
     private void drawBlock() {
-//      System.out.println(xRot + " " + yRot + " " + zRot);
-
+        getStatusLabel().setText(rotationType.name() + " " + xRot + " " + yRot + " " + zRot);
 
         MODELVIEW.push();
+
         MODELVIEW.translate(0F, 0F, -10F);
-        MODELVIEW.rotateX((float) Math.toRadians(xRot));
-//        MODELVIEW.translate(0F, 0F, 0F);
-        MODELVIEW.rotateY((float) Math.toRadians(yRot));
-//        MODELVIEW.translate(0F, 0F, 0F);
+
         MODELVIEW.rotateZ((float) Math.toRadians(zRot));
+        MODELVIEW.rotateY((float) Math.toRadians(yRot));
+        MODELVIEW.rotateX((float) Math.toRadians(xRot));
+
         setModelMatrixUniforms();
         MODELVIEW.pop();
 
@@ -274,31 +278,37 @@ public class DimensionControl extends AbstractThreeD {
         rotateFromZ = zRot;
         rotateToZ = zRot;
         if (keyboardManager.isButtonDown(Key.Q.getKeyCode())) {
+            rotationType = RotationType.PLUS_X;
             rotateFromX = xRot % DEGREES_IN_DIRCLE;
             rotateToX = (xRot + RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.W.getKeyCode())) {
+            rotationType = RotationType.PLUS_Y;
             rotateFromY = yRot % DEGREES_IN_DIRCLE;
             rotateToY = (yRot + RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.E.getKeyCode())) {
+            rotationType = RotationType.PLUS_Z;
             rotateFromZ = zRot % DEGREES_IN_DIRCLE;
             rotateToZ = (zRot + RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.A.getKeyCode())) {
+            rotationType = RotationType.MINUS_X;
             rotateFromX = xRot % DEGREES_IN_DIRCLE;
             rotateToX = (xRot - RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.S.getKeyCode())) {
+            rotationType = RotationType.MINUS_Y;
             rotateFromY = yRot % DEGREES_IN_DIRCLE;
             rotateToY = (yRot - RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.D.getKeyCode())) {
+            rotationType = RotationType.MINUS_Z;
             rotateFromZ = zRot % DEGREES_IN_DIRCLE;
             rotateToZ = (zRot - RIGHT_ANGLE);
             prepareRotation();
@@ -348,4 +358,6 @@ public class DimensionControl extends AbstractThreeD {
         @MinFilter(TextureMinFilter.LINEAR)
         ExternalTexture2DResource block();
     }
+
+
 }

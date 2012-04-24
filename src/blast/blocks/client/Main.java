@@ -31,6 +31,7 @@ public class Main implements EntryPoint {
 
     private final Label fpsLabel = new Label();
     private final ListBox shapeSelector = new ListBox();
+    private final Label statusLabel = new Label();
 
     private Surface3D surface = new Surface3D(WIDTH, HEIGHT, new WebGLContextAttributes() {
         { setStencilEnable(true); }
@@ -78,12 +79,13 @@ public class Main implements EntryPoint {
                 surface.setFocus(true);
             }
         });
-
         panel.add(shapeSelector);
+        panel.add(statusLabel);
         return panel;
     }
 
     private void run(final GL2 gl) {
+        CONTROL.setStatusLabel(statusLabel);
         CONTROL.setSurface(surface);
         CONTROL.init(gl);
 

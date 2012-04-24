@@ -5,6 +5,7 @@ import gwt.g3d.client.gl2.GL2;
 import gwt.g3d.client.gl2.GLDisposable;
 import gwt.g3d.client.shader.AbstractShader;
 import com.google.gwt.resources.client.ClientBundleWithLookup;
+import com.google.gwt.user.client.ui.Label;
 
 public abstract class AbstractThreeD implements GLDisposable {
     protected static final float MILLISECONDS_PER_SECOND = 1000.0F;
@@ -14,6 +15,7 @@ public abstract class AbstractThreeD implements GLDisposable {
     private GL2 gl;
     private Surface3D surface;
     private AbstractShader shader;
+    private Label statusLabel;
 
     protected AbstractThreeD() {
     }
@@ -49,4 +51,12 @@ public abstract class AbstractThreeD implements GLDisposable {
     }
 
     public abstract ClientBundleWithLookup getClientBundle();
+
+    public final void setStatusLabel(final Label statusLabel) {
+        this.statusLabel = statusLabel;
+    }
+
+    public final Label getStatusLabel() {
+        return statusLabel;
+    }
 }
