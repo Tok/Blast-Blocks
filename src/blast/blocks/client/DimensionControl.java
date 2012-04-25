@@ -31,15 +31,14 @@ import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.resources.client.ResourceCallback;
 import com.google.gwt.resources.client.ResourceException;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Label;
 
 public class DimensionControl extends AbstractThreeD {
     private static final double ROTATION_DURATION = 200D;
 
     private final Matrix3f nMatrix = new Matrix3f();
 
-    private static final float TRANSLATE_Z = -10F;
-
+    private static final float TRANSLATE_Z_BLOCK = -10F;
+    private static final float TRANSLATE_Z_GRID = -17.25F;
     private static final boolean IS_BLENDING = true;
     private static final boolean IS_LIGHTING = true;
 
@@ -66,6 +65,11 @@ public class DimensionControl extends AbstractThreeD {
 
     private RotationType rotationType = RotationType.NONE;
     private boolean isRotating = false;
+
+//    private Direction xPointsTo = Direction.Right;
+//    private Direction yPointsTo = Direction.Bottom;
+//    private Direction zPointsTo = Direction.Front;
+
     private float xRot = 0.0F;
     private float yRot = 0.0F;
     private float zRot = 0.0F;
@@ -100,40 +104,6 @@ public class DimensionControl extends AbstractThreeD {
         return Resources.INSTANCE;
     }
 
-    @Override
-    public final void update() {
-        getGl().clear(ClearBufferMask.COLOR_BUFFER_BIT, ClearBufferMask.DEPTH_BUFFER_BIT);
-
-        double currTime = System.currentTimeMillis();
-        elapsed = currTime - lastTime;
-        lastTime = currTime;
-
-        if (isRotating) {
-            rotationTime += elapsed;
-            if (rotationTime >= ROTATION_DURATION) {
-                rotationType = RotationType.NONE;
-                xRot = rotateToX;
-                yRot = rotateToY;
-                zRot = rotateToZ;
-                isRotating = false;
-            } else {
-                xRot = rotateFromX + Double.valueOf((((rotateToX - rotateFromX) * rotationTime) / ROTATION_DURATION)).floatValue();
-                yRot = rotateFromY + Double.valueOf((((rotateToY - rotateFromY) * rotationTime) / ROTATION_DURATION)).floatValue();
-                zRot = rotateFromZ + Double.valueOf((((rotateToZ - rotateFromZ) * rotationTime) / ROTATION_DURATION)).floatValue();
-            }
-        } else {
-            handleKeys();
-        }
-
-        if (gridTexture != null) {
-            gridTexture.bind();
-        }
-        drawGrid();
-        if (blockTexture != null) {
-            blockTexture.bind();
-        }
-        drawBlock();
-    }
 
     public final void updateShape(final Shape shape) {
         if (blockMesh != null) {
@@ -202,35 +172,71 @@ public class DimensionControl extends AbstractThreeD {
         //Block
         updateShape(shape);
 
+        MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
+
         lastTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public final void update() {
+        getGl().clear(ClearBufferMask.COLOR_BUFFER_BIT, ClearBufferMask.DEPTH_BUFFER_BIT);
+
+        double currTime = System.currentTimeMillis();
+        elapsed = currTime - lastTime;
+        lastTime = currTime;
+
+        if (isRotating) {
+            rotationTime += elapsed;
+            if (rotationTime >= ROTATION_DURATION) {
+                xRot = rotateToX % DEGREES_IN_DIRCLE;
+                yRot = rotateToY % DEGREES_IN_DIRCLE;
+                zRot = rotateToZ % DEGREES_IN_DIRCLE;
+                rotationType = RotationType.NONE;
+                isRotating = false;
+            } else {
+                xRot = rotateFromX + Double.valueOf((((rotateToX - rotateFromX) * rotationTime) / ROTATION_DURATION)).floatValue();
+                yRot = rotateFromY + Double.valueOf((((rotateToY - rotateFromY) * rotationTime) / ROTATION_DURATION)).floatValue();
+                zRot = rotateFromZ + Double.valueOf((((rotateToZ - rotateFromZ) * rotationTime) / ROTATION_DURATION)).floatValue();
+            }
+        } else {
+            handleKeys();
+        }
+
+        if (gridTexture != null) {
+            gridTexture.bind();
+        }
+        drawGrid();
+        if (blockTexture != null) {
+            blockTexture.bind();
+        }
+        drawBlock();
     }
 
     private void drawGrid() {
         PROJECTION.push();
-        PROJECTION.translate(0, 0, -17.25F);
+        PROJECTION.translate(0, 0, TRANSLATE_Z_GRID);
         setProjectionMatrixUniforms();
-        PROJECTION.pop();
-
         prepareBlenderAndLighting(GRID_COLOR_VECTOR);
-        gridMesh.draw();
+        gridMesh.draw(); //XXX
+        PROJECTION.pop();
     }
 
     private void drawBlock() {
-        getStatusLabel().setText(rotationType.name() + " " + xRot + " " + yRot + " " + zRot);
+//        getStatusLabel().setText(
+//                "[X:" + rotateToX + "-->" + xPointsTo
+//                + "][Y:" + rotateToY + "-->" + yPointsTo
+//                + "][Z:" + rotateToZ + "-->" + zPointsTo
+//                + "] Type:" + rotationType);
+        getStatusLabel().setText("[X:" + rotateToX + "][Y:" + rotateToY + "][Z:" + rotateToZ + "] Type:" + rotationType);
 
         MODELVIEW.push();
-
-        MODELVIEW.translate(0F, 0F, -10F);
-
         MODELVIEW.rotateZ((float) Math.toRadians(zRot));
         MODELVIEW.rotateY((float) Math.toRadians(yRot));
         MODELVIEW.rotateX((float) Math.toRadians(xRot));
-
         setModelMatrixUniforms();
-        MODELVIEW.pop();
-
         prepareBlenderAndLighting(BLOCK_COLOR_VECTOR);
         blockMesh.draw();
+        MODELVIEW.pop();
     }
 
     private void prepareBlenderAndLighting(final Vector3f colorVector) {
@@ -279,37 +285,31 @@ public class DimensionControl extends AbstractThreeD {
         rotateToZ = zRot;
         if (keyboardManager.isButtonDown(Key.Q.getKeyCode())) {
             rotationType = RotationType.PLUS_X;
-            rotateFromX = xRot % DEGREES_IN_DIRCLE;
             rotateToX = (xRot + RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.W.getKeyCode())) {
             rotationType = RotationType.PLUS_Y;
-            rotateFromY = yRot % DEGREES_IN_DIRCLE;
             rotateToY = (yRot + RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.E.getKeyCode())) {
             rotationType = RotationType.PLUS_Z;
-            rotateFromZ = zRot % DEGREES_IN_DIRCLE;
             rotateToZ = (zRot + RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.A.getKeyCode())) {
             rotationType = RotationType.MINUS_X;
-            rotateFromX = xRot % DEGREES_IN_DIRCLE;
             rotateToX = (xRot - RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.S.getKeyCode())) {
             rotationType = RotationType.MINUS_Y;
-            rotateFromY = yRot % DEGREES_IN_DIRCLE;
-            rotateToY = (yRot - RIGHT_ANGLE);
+             rotateToY = (yRot - RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.D.getKeyCode())) {
             rotationType = RotationType.MINUS_Z;
-            rotateFromZ = zRot % DEGREES_IN_DIRCLE;
             rotateToZ = (zRot - RIGHT_ANGLE);
             prepareRotation();
         }
@@ -338,8 +338,6 @@ public class DimensionControl extends AbstractThreeD {
             rotateFromZ += DEGREES_IN_DIRCLE;
             rotateToZ = DEGREES_IN_DIRCLE + rotateToZ;
         }
-//        System.out.println("From: " + rotateFromX + " " + rotateFromY + " " + rotateFromZ);
-//        System.out.println("To: " + rotateToX + " " + rotateToY + " " + rotateToZ);
         rotationTime = 0.0D;
     }
 
@@ -358,6 +356,5 @@ public class DimensionControl extends AbstractThreeD {
         @MinFilter(TextureMinFilter.LINEAR)
         ExternalTexture2DResource block();
     }
-
 
 }

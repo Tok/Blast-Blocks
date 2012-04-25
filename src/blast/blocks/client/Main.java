@@ -32,6 +32,7 @@ public class Main implements EntryPoint {
     private final Label fpsLabel = new Label();
     private final ListBox shapeSelector = new ListBox();
     private final Label statusLabel = new Label();
+    private final Label commandsLabel = new Label("Press Q,W,E and A,S,D to rotate the object.");
 
     private Surface3D surface = new Surface3D(WIDTH, HEIGHT, new WebGLContextAttributes() {
         { setStencilEnable(true); }
@@ -65,10 +66,16 @@ public class Main implements EntryPoint {
 
     private Widget createWidget() {
         Panel panel = new FlowPanel();
+        panel.add(commandsLabel);
         panel.add(surface);
         panel.add(fpsLabel);
+        int index = 0;
         for (Shape shape : Shape.values()) {
             shapeSelector.addItem(shape.name());
+            if (shape.equals(Shape.LeftScrewTetracube)) {
+                shapeSelector.setSelectedIndex(index);
+            }
+            index++;
         }
         shapeSelector.addChangeHandler(new ChangeHandler() {
             @Override
@@ -88,7 +95,6 @@ public class Main implements EntryPoint {
         CONTROL.setStatusLabel(statusLabel);
         CONTROL.setSurface(surface);
         CONTROL.init(gl);
-
         FpsTimer timer = new FpsTimer(DESIRED_FPS) {
             @Override
             public void update() {
