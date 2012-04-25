@@ -172,7 +172,7 @@ public class DimensionControl extends AbstractThreeD {
         //Block
         updateShape(shape);
 
-        MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
+//      MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
 
         lastTime = System.currentTimeMillis();
     }
@@ -230,6 +230,7 @@ public class DimensionControl extends AbstractThreeD {
         getStatusLabel().setText("[X:" + rotateToX + "][Y:" + rotateToY + "][Z:" + rotateToZ + "] Type:" + rotationType);
 
         MODELVIEW.push();
+        MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
         MODELVIEW.rotateZ((float) Math.toRadians(zRot));
         MODELVIEW.rotateY((float) Math.toRadians(yRot));
         MODELVIEW.rotateX((float) Math.toRadians(xRot));
