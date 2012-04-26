@@ -19,7 +19,10 @@ import gwt.g3d.resources.client.MinFilter;
 import gwt.g3d.resources.client.ShaderResource;
 import gwt.g3d.resources.client.Texture2DResource;
 import javax.vecmath.Matrix3f;
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 import blast.blocks.client.mesh.Boxes;
 import blast.blocks.client.mesh.Grid;
 import blast.blocks.shared.enums.Key;
@@ -66,19 +69,10 @@ public class DimensionControl extends AbstractThreeD {
     private RotationType rotationType = RotationType.NONE;
     private boolean isRotating = false;
 
-//    private Direction xPointsTo = Direction.Right;
-//    private Direction yPointsTo = Direction.Bottom;
-//    private Direction zPointsTo = Direction.Front;
+    private float deltaRot = 0.0F;
+    private float absoluteRot = 0.0F;
 
-    private float xRot = 0.0F;
-    private float yRot = 0.0F;
-    private float zRot = 0.0F;
-    private float rotateFromX = 0.0F;
-    private float rotateToX = 0.0F;
-    private float rotateFromY = 0.0F;
-    private float rotateToY = 0.0F;
-    private float rotateFromZ = 0.0F;
-    private float rotateToZ = 0.0F;
+    private Quat4f oldQuat = createQuaternionFromEuler(0F, 0F, 0F);
 
     private final KeyboardManager keyboardManager = new KeyboardManager();
 
@@ -172,7 +166,7 @@ public class DimensionControl extends AbstractThreeD {
         //Block
         updateShape(shape);
 
-//      MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
+        MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
 
         lastTime = System.currentTimeMillis();
     }
@@ -188,17 +182,16 @@ public class DimensionControl extends AbstractThreeD {
         if (isRotating) {
             rotationTime += elapsed;
             if (rotationTime >= ROTATION_DURATION) {
-                xRot = rotateToX % DEGREES_IN_DIRCLE;
-                yRot = rotateToY % DEGREES_IN_DIRCLE;
-                zRot = rotateToZ % DEGREES_IN_DIRCLE;
-                rotationType = RotationType.NONE;
+                deltaRot = RIGHT_ANGLE - absoluteRot; //last step
+                absoluteRot = 0.0F;
                 isRotating = false;
             } else {
-                xRot = rotateFromX + Double.valueOf((((rotateToX - rotateFromX) * rotationTime) / ROTATION_DURATION)).floatValue();
-                yRot = rotateFromY + Double.valueOf((((rotateToY - rotateFromY) * rotationTime) / ROTATION_DURATION)).floatValue();
-                zRot = rotateFromZ + Double.valueOf((((rotateToZ - rotateFromZ) * rotationTime) / ROTATION_DURATION)).floatValue();
+                deltaRot = Double.valueOf((RIGHT_ANGLE * elapsed / ROTATION_DURATION)).floatValue();
+                absoluteRot += deltaRot;
             }
         } else {
+            deltaRot = 0.0F;
+            rotationType = RotationType.NONE;
             handleKeys();
         }
 
@@ -222,22 +215,60 @@ public class DimensionControl extends AbstractThreeD {
     }
 
     private void drawBlock() {
-//        getStatusLabel().setText(
-//                "[X:" + rotateToX + "-->" + xPointsTo
-//                + "][Y:" + rotateToY + "-->" + yPointsTo
-//                + "][Z:" + rotateToZ + "-->" + zPointsTo
-//                + "] Type:" + rotationType);
-        getStatusLabel().setText("[X:" + rotateToX + "][Y:" + rotateToY + "][Z:" + rotateToZ + "] Type:" + rotationType);
+        getStatusLabel().setText("Type:" + rotationType + " delta: " + deltaRot + " abs: " + absoluteRot);
 
         MODELVIEW.push();
-        MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
-        MODELVIEW.rotateZ((float) Math.toRadians(zRot));
-        MODELVIEW.rotateY((float) Math.toRadians(yRot));
-        MODELVIEW.rotateX((float) Math.toRadians(xRot));
+
+        Quat4f quat = oldQuat;
+        Quat4f deltaQuat = null;
+
+        if (rotationType.equals(RotationType.PLUS_Z)) {
+            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(0F, 0F, 1F), deltaRot);
+        } else if (rotationType.equals(RotationType.MINUS_Z)) {
+            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(0F, 0F, -1F), deltaRot);
+        } else if (rotationType.equals(RotationType.PLUS_Y)) {
+            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(0F, 1F, 0F), deltaRot);
+        } else if (rotationType.equals(RotationType.MINUS_Y)) {
+            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(0F, -1F, 0F), deltaRot);
+        } else if (rotationType.equals(RotationType.PLUS_X)) {
+            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(1F, 0F, 0F), deltaRot);
+        } else if (rotationType.equals(RotationType.MINUS_X)) {
+            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(-1F, 0F, 0F), deltaRot);
+        }
+        if (deltaQuat != null) {
+            quat.mul(deltaQuat);
+        }
+
+        MODELVIEW.rotate(quat);
+
+        oldQuat = quat;
+
         setModelMatrixUniforms();
         prepareBlenderAndLighting(BLOCK_COLOR_VECTOR);
         blockMesh.draw();
+
         MODELVIEW.pop();
+    }
+
+    private Quat4f createQuaternionFromEuler(final double angleX, final double angleY, final double angleZ) {
+        Quat4f qx = createQuaternionFromAxisAndAngle(new Vector3d(1F, 0F, 0F), angleX);
+        Quat4f qy = createQuaternionFromAxisAndAngle(new Vector3d(0F, 1F, 0F), angleY);
+        Quat4f qz = createQuaternionFromAxisAndAngle(new Vector3d(0F, 0F, 1F), angleZ);
+        qx.mul(qy);
+        qx.mul(qz);
+        return qx;
+    }
+
+    private Quat4f createQuaternionFromAxisAndAngle(final Vector3d axis, final double angle) {
+        double sinA = Math.sin((float) Math.toRadians(angle) / 2F);
+        double cosA = Math.cos((float) Math.toRadians(angle) / 2F);
+        Vector4f v = new Vector4f();
+        v.x = (float) (axis.x * sinA);
+        v.y = (float) (axis.y * sinA);
+        v.z = (float) (axis.z * sinA);
+        v.w = (float) cosA;
+        v.normalize();
+        return new Quat4f(v);
     }
 
     private void prepareBlenderAndLighting(final Vector3f colorVector) {
@@ -278,67 +309,34 @@ public class DimensionControl extends AbstractThreeD {
         if (isRotating) {
             return;
         }
-        rotateFromX = xRot;
-        rotateToX = xRot;
-        rotateFromY = yRot;
-        rotateToY = yRot;
-        rotateFromZ = zRot;
-        rotateToZ = zRot;
         if (keyboardManager.isButtonDown(Key.Q.getKeyCode())) {
             rotationType = RotationType.PLUS_X;
-            rotateToX = (xRot + RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.W.getKeyCode())) {
             rotationType = RotationType.PLUS_Y;
-            rotateToY = (yRot + RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.E.getKeyCode())) {
             rotationType = RotationType.PLUS_Z;
-            rotateToZ = (zRot + RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.A.getKeyCode())) {
             rotationType = RotationType.MINUS_X;
-            rotateToX = (xRot - RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.S.getKeyCode())) {
             rotationType = RotationType.MINUS_Y;
-             rotateToY = (yRot - RIGHT_ANGLE);
             prepareRotation();
         }
         if (keyboardManager.isButtonDown(Key.D.getKeyCode())) {
             rotationType = RotationType.MINUS_Z;
-            rotateToZ = (zRot - RIGHT_ANGLE);
             prepareRotation();
         }
     }
 
     private void prepareRotation() {
         isRotating = true;
-        if (rotateToX > DEGREES_IN_DIRCLE) {
-            rotateToX = rotateToX % DEGREES_IN_DIRCLE;
-        }
-        if (rotateToX < 0) {
-            rotateFromX += DEGREES_IN_DIRCLE;
-            rotateToX = DEGREES_IN_DIRCLE + rotateToX;
-        }
-        if (rotateToY > DEGREES_IN_DIRCLE) {
-            rotateToY = rotateToY % DEGREES_IN_DIRCLE;
-        }
-        if (rotateToY < 0) {
-            rotateFromY += DEGREES_IN_DIRCLE;
-            rotateToY = DEGREES_IN_DIRCLE + rotateToY;
-        }
-        if (rotateToZ > DEGREES_IN_DIRCLE) {
-            rotateToZ = rotateToZ % DEGREES_IN_DIRCLE;
-        }
-        if (rotateToZ < 0) {
-            rotateFromZ += DEGREES_IN_DIRCLE;
-            rotateToZ = DEGREES_IN_DIRCLE + rotateToZ;
-        }
         rotationTime = 0.0D;
     }
 
