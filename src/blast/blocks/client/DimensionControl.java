@@ -20,7 +20,6 @@ import gwt.g3d.resources.client.ShaderResource;
 import gwt.g3d.resources.client.Texture2DResource;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 import blast.blocks.client.mesh.Boxes;
@@ -166,7 +165,7 @@ public class DimensionControl extends AbstractThreeD {
         //Block
         updateShape(shape);
 
-        MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
+//      MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
 
         lastTime = System.currentTimeMillis();
     }
@@ -219,26 +218,11 @@ public class DimensionControl extends AbstractThreeD {
 
         MODELVIEW.push();
 
-        Quat4f quat = oldQuat;
-        Quat4f deltaQuat = null;
+        MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
 
-        if (rotationType.equals(RotationType.PLUS_Z)) {
-            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(0F, 0F, 1F), deltaRot);
-        } else if (rotationType.equals(RotationType.MINUS_Z)) {
-            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(0F, 0F, -1F), deltaRot);
-        } else if (rotationType.equals(RotationType.PLUS_Y)) {
-            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(0F, 1F, 0F), deltaRot);
-        } else if (rotationType.equals(RotationType.MINUS_Y)) {
-            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(0F, -1F, 0F), deltaRot);
-        } else if (rotationType.equals(RotationType.PLUS_X)) {
-            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(1F, 0F, 0F), deltaRot);
-        } else if (rotationType.equals(RotationType.MINUS_X)) {
-            deltaQuat = createQuaternionFromAxisAndAngle(new Vector3d(-1F, 0F, 0F), deltaRot);
-        }
-        if (deltaQuat != null) {
-            quat.mul(deltaQuat);
-        }
-
+        final Quat4f quat = oldQuat;
+        final Quat4f deltaQuat = createQuaternionFromAxisAndAngle(rotationType.getVector3f(), deltaRot);
+        quat.mul(deltaQuat);
         MODELVIEW.rotate(quat);
 
         oldQuat = quat;
@@ -250,23 +234,23 @@ public class DimensionControl extends AbstractThreeD {
         MODELVIEW.pop();
     }
 
-    private Quat4f createQuaternionFromEuler(final double angleX, final double angleY, final double angleZ) {
-        Quat4f qx = createQuaternionFromAxisAndAngle(new Vector3d(1F, 0F, 0F), angleX);
-        Quat4f qy = createQuaternionFromAxisAndAngle(new Vector3d(0F, 1F, 0F), angleY);
-        Quat4f qz = createQuaternionFromAxisAndAngle(new Vector3d(0F, 0F, 1F), angleZ);
+    private Quat4f createQuaternionFromEuler(final float angleX, final float angleY, final float angleZ) {
+        final Quat4f qx = createQuaternionFromAxisAndAngle(RotationType.PLUS_X.getVector3f(), angleX);
+        final Quat4f qy = createQuaternionFromAxisAndAngle(RotationType.PLUS_Y.getVector3f(), angleY);
+        final Quat4f qz = createQuaternionFromAxisAndAngle(RotationType.PLUS_Z.getVector3f(), angleZ);
         qx.mul(qy);
         qx.mul(qz);
         return qx;
     }
 
-    private Quat4f createQuaternionFromAxisAndAngle(final Vector3d axis, final double angle) {
-        double sinA = Math.sin((float) Math.toRadians(angle) / 2F);
-        double cosA = Math.cos((float) Math.toRadians(angle) / 2F);
-        Vector4f v = new Vector4f();
-        v.x = (float) (axis.x * sinA);
-        v.y = (float) (axis.y * sinA);
-        v.z = (float) (axis.z * sinA);
-        v.w = (float) cosA;
+    private Quat4f createQuaternionFromAxisAndAngle(final Vector3f axis, final float angle) {
+        final float sinA = Double.valueOf(Math.sin(Math.toRadians(angle) / 2D)).floatValue();
+        final float cosA = Double.valueOf(Math.cos(Math.toRadians(angle) / 2D)).floatValue();
+        final Vector4f v = new Vector4f();
+        v.setX(axis.getX() * sinA);
+        v.setY(axis.getY() * sinA);
+        v.setZ(axis.getZ() * sinA);
+        v.setW(cosA);
         v.normalize();
         return new Quat4f(v);
     }
