@@ -3,14 +3,14 @@ package blast.blocks;
 import gwt.g3d.client.primitive.MeshData;
 import gwt.g3d.client.primitive.PrimitiveFactory;
 import junit.framework.TestCase;
-import blast.blocks.client.mesh.Boxes;
+import blast.blocks.client.mesh.BlockMesh;
 import blast.blocks.shared.enums.Shape;
 
 public class BoxesTester extends TestCase {
 
     public final void testBox() throws Exception {
         final MeshData comparisionMesh = PrimitiveFactory.makeBox();
-        final MeshData myMesh = Boxes.getMesh(Shape.Cube);
+        final MeshData myMesh = BlockMesh.getMesh(Shape.Cube);
 
         int index = 0;
         for (int triangle : comparisionMesh.getTriangles()) {

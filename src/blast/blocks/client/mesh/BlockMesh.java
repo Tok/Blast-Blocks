@@ -7,8 +7,8 @@ import blast.blocks.shared.Dir;
 import blast.blocks.shared.enums.Direction;
 import blast.blocks.shared.enums.Shape;
 
-public final class Boxes extends AbstractMeshCreator {
-    private Boxes() { }
+public final class BlockMesh extends AbstractMeshCreator {
+    private BlockMesh() { }
 
     public static MeshData getMesh(final Shape shape) {
         if (shape.equals(Shape.Cube)) {
@@ -133,8 +133,8 @@ public final class Boxes extends AbstractMeshCreator {
                2, 0, 2, 1, 0, 1, 0, 0,  // Inner Back face
                1, 0, 1, 1, 0, 1, 0, 0,  // Outer Back face
                0, 1, 0, 0, 1, 0, 1, 1,  // Lower Top face
-//             0, 1, 0, 0, 2, 0, 2, 1,  // Upper Top face
-               0, 2, 0, 0, 4, 0, 4, 2,  // Upper Top face //FIXME remove
+               0, 1, 0, 0, 2, 0, 2, 1,  // Upper Top face
+//             0, 2, 0, 0, 4, 0, 4, 2,  // Upper Top face //XXX for debug purposes
                2, 1, 0, 1, 0, 0, 2, 0,  // Lower Bottom face
                0, 1, 0, 0, 1, 0, 1, 1,  // Upper Bottom face
                1, 0, 1, 1, 0, 1, 0, 0,  // Lower Right face

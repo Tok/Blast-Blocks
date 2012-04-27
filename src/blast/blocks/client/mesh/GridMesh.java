@@ -1,20 +1,20 @@
 package blast.blocks.client.mesh;
 
+import gwt.g3d.client.primitive.MeshData;
 import java.util.ArrayList;
 import java.util.List;
 import blast.blocks.shared.Dir;
+import blast.blocks.shared.Field;
 import blast.blocks.shared.enums.Direction;
-import gwt.g3d.client.primitive.MeshData;
 
-public final class Grid extends AbstractMeshCreator {
-    private static final float GRID_DEPTH = 10F;
+public final class GridMesh extends AbstractMeshCreator {
 
-    private Grid() { }
+    private GridMesh() { }
 
-    public static MeshData makeGrid() {
-        float w = 3F;
-        float h = 3F;
-        float d = GRID_DEPTH;
+    public static MeshData makeGrid(final Field field) {
+        float w = field.getColumns();
+        float h = field.getRows();
+        float d = field.getDepth();
         final float[] boxVerts = {
         // X   Y   Z   X   Y   Z   X   Y   Z   X   Y   Z
           -w, -h, -d, -w,  h, -d,  w,  h, -d,  w, -h, -d,  // Back face

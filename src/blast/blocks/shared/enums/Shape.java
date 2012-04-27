@@ -1,5 +1,6 @@
 package blast.blocks.shared.enums;
 
+
 public enum Shape {
     Cube(1),
     Dualcube(2),

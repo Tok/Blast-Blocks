@@ -22,8 +22,9 @@ import javax.vecmath.Matrix3f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
-import blast.blocks.client.mesh.Boxes;
-import blast.blocks.client.mesh.Grid;
+import blast.blocks.client.mesh.BlockMesh;
+import blast.blocks.client.mesh.GridMesh;
+import blast.blocks.shared.Field;
 import blast.blocks.shared.enums.Key;
 import blast.blocks.shared.enums.RotationType;
 import blast.blocks.shared.enums.Shape;
@@ -75,6 +76,8 @@ public class DimensionControl extends AbstractThreeD {
 
     private final KeyboardManager keyboardManager = new KeyboardManager();
 
+    private final Field field = new Field(10, 3, 3);
+
     protected DimensionControl() {
         super();
     }
@@ -102,7 +105,7 @@ public class DimensionControl extends AbstractThreeD {
         if (blockMesh != null) {
             blockMesh.dispose();
         }
-        blockMesh = new StaticMesh(getGl(), Boxes.getMesh(shape));
+        blockMesh = new StaticMesh(getGl(), BlockMesh.getMesh(shape));
         blockMesh.setPositionIndex(getShader().getAttributeLocation("aVertexPosition"));
         blockMesh.setNormalIndex(getShader().getAttributeLocation("aVertexNormal"));
         blockMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
@@ -157,7 +160,7 @@ public class DimensionControl extends AbstractThreeD {
         PROJECTION.pop();
 
         //Grid:
-        gridMesh = new StaticMesh(getGl(), Grid.makeGrid());
+        gridMesh = new StaticMesh(getGl(), GridMesh.makeGrid(field));
         gridMesh.setPositionIndex(getShader().getAttributeLocation("aVertexPosition"));
         gridMesh.setNormalIndex(getShader().getAttributeLocation("aVertexNormal"));
         gridMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
@@ -214,23 +217,17 @@ public class DimensionControl extends AbstractThreeD {
     }
 
     private void drawBlock() {
-        getStatusLabel().setText("Type:" + rotationType + " delta: " + deltaRot + " abs: " + absoluteRot);
-
+//      getStatusLabel().setText("Type:" + rotationType + " delta: " + deltaRot + " abs: " + absoluteRot);
         MODELVIEW.push();
-
         MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
-
         final Quat4f quat = oldQuat;
         final Quat4f deltaQuat = createQuaternionFromAxisAndAngle(rotationType.getVector3f(), deltaRot);
         quat.mul(deltaQuat);
         MODELVIEW.rotate(quat);
-
         oldQuat = quat;
-
         setModelMatrixUniforms();
         prepareBlenderAndLighting(BLOCK_COLOR_VECTOR);
         blockMesh.draw();
-
         MODELVIEW.pop();
     }
 
