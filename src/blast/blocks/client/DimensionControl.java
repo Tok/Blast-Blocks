@@ -110,7 +110,7 @@ public class DimensionControl extends AbstractThreeD {
     }
 
 
-    public final void updateShape(final Shape shape) {
+    public final void createShape(final Shape shape) {
         if (blockMesh != null) {
             blockMesh.dispose();
         }
@@ -118,15 +118,14 @@ public class DimensionControl extends AbstractThreeD {
         blockMesh.setPositionIndex(getShader().getAttributeLocation("aVertexPosition"));
         blockMesh.setNormalIndex(getShader().getAttributeLocation("aVertexNormal"));
         blockMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
+
+        //add to field
+        field.add(shape);
     }
 
     @Override
     protected final void initImpl() {
         getSurface().setFocus(true);
-        initImpl(Shape.Cube);
-    }
-
-    private void initImpl(final Shape shape) {
         try {
             ShaderResource shaderResource = ((ShaderResource) getClientBundle().getResource("shader"));
             setShader(shaderResource.createShader(getGl()));
@@ -175,7 +174,7 @@ public class DimensionControl extends AbstractThreeD {
         gridMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
 
         //Block
-        updateShape(shape);
+        createShape(Shape.Cube);
 
         lastTime = System.currentTimeMillis();
     }
@@ -323,6 +322,9 @@ public class DimensionControl extends AbstractThreeD {
     }
 
     private void handleKeys() {
+        if (isRotating || isMoving) {
+            return;
+        }
         rotationType = RotationType.NONE;
         movementType = MovementType.NONE;
         if (keyboardManager.isButtonDown(Key.Q.getKeyCode())) {
@@ -344,20 +346,30 @@ public class DimensionControl extends AbstractThreeD {
             rotationType = RotationType.MINUS_Z;
             prepareRotation();
         } else if (keyboardManager.isButtonDown(Key.UP.getKeyCode())) {
-            movementType = MovementType.PLUS_Y;
-            prepareMovement();
+            if (field.tryMove(MovementType.PLUS_Y)) {
+                movementType = MovementType.PLUS_Y;
+                prepareMovement();
+            }
         } else if (keyboardManager.isButtonDown(Key.DOWN.getKeyCode())) {
-            movementType = MovementType.MINUS_Y;
-            prepareMovement();
+            if (field.tryMove(MovementType.MINUS_Y)) {
+                movementType = MovementType.MINUS_Y;
+                prepareMovement();
+            }
         } else if (keyboardManager.isButtonDown(Key.LEFT.getKeyCode())) {
-            movementType = MovementType.MINUS_X;
-            prepareMovement();
+            if (field.tryMove(MovementType.MINUS_X)) {
+                movementType = MovementType.MINUS_X;
+                prepareMovement();
+            }
         } else if (keyboardManager.isButtonDown(Key.RIGHT.getKeyCode())) {
-            movementType = MovementType.PLUS_X;
-            prepareMovement();
+            if (field.tryMove(MovementType.PLUS_X)) {
+                movementType = MovementType.PLUS_X;
+                prepareMovement();
+            }
         } else if (keyboardManager.isButtonDown(Key.SPACE.getKeyCode())) {
-            movementType = MovementType.MINUS_Z;
-            prepareMovement();
+            if (field.tryMove(MovementType.MINUS_Z)) {
+                movementType = MovementType.MINUS_Z;
+                prepareMovement();
+            }
         }
     }
 

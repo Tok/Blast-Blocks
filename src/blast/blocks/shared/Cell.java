@@ -35,4 +35,8 @@ public class Cell {
         this.color = color;
     }
 
+    @Override
+    public final String toString() {
+        return isOccupied + " " + isFixed;
+    }
 }
