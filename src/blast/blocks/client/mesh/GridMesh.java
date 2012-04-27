@@ -12,17 +12,20 @@ public final class GridMesh extends AbstractMeshCreator {
     private GridMesh() { }
 
     public static MeshData makeGrid(final Field field) {
-        float w = field.getColumns();
-        float h = field.getRows();
-        float d = field.getDepth();
+        final float ww = field.getColumns() * 2F;
+        final float hh = field.getRows() * 2F;
+        final float dd = field.getDepth() * 2F;
         final float[] boxVerts = {
-        // X   Y   Z   X   Y   Z   X   Y   Z   X   Y   Z
-          -w, -h, -d, -w,  h, -d,  w,  h, -d,  w, -h, -d,  // Back face
-          -w,  h, -d, -w,  h,  d,  w,  h,  d,  w,  h, -d,  // Top face
-          -w, -h, -d,  w, -h, -d,  w, -h,  d, -w, -h,  d,  // Bottom face
-           w, -h, -d,  w,  h, -d,  w,  h,  d,  w, -h,  d,  // Right face
-          -w, -h, -d, -w, -h,  d, -w,  h,  d, -w,  h, -d,  // Left face
+        //  X    Y    Z    X    Y    Z    X    Y    Z    X    Y    Z
+          -ww, -hh, -dd, -ww,  hh, -dd,  ww,  hh, -dd,  ww, -hh, -dd,  // Back face
+          -ww,  hh, -dd, -ww,  hh,  dd,  ww,  hh,  dd,  ww,  hh, -dd,  // Top face
+          -ww, -hh, -dd,  ww, -hh, -dd,  ww, -hh,  dd, -ww, -hh,  dd,  // Bottom face
+           ww, -hh, -dd,  ww,  hh, -dd,  ww,  hh,  dd,  ww, -hh,  dd,  // Right face
+          -ww, -hh, -dd, -ww, -hh,  dd, -ww,  hh,  dd, -ww,  hh, -dd,  // Left face
         };
+        final float w = field.getColumns();
+        final float h = field.getRows();
+        final float d = field.getDepth();
         final float[] coords = {
             w, 0, w, h, 0, h, 0, 0,  // Back face
             0, d, 0, 0, w, 0, w, d,  // Top face

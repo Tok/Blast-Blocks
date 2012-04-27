@@ -26,6 +26,7 @@ import blast.blocks.client.mesh.BlockMesh;
 import blast.blocks.client.mesh.GridMesh;
 import blast.blocks.shared.Field;
 import blast.blocks.shared.enums.Key;
+import blast.blocks.shared.enums.MovementType;
 import blast.blocks.shared.enums.RotationType;
 import blast.blocks.shared.enums.Shape;
 import com.google.gwt.core.client.GWT;
@@ -36,12 +37,16 @@ import com.google.gwt.resources.client.ResourceException;
 import com.google.gwt.user.client.Window;
 
 public class DimensionControl extends AbstractThreeD {
-    private static final double ROTATION_DURATION = 200D;
+    private static final double ROTATION_DURATION = 500D;
+    private static final double MOVEMENT_DURATION = 500D;
 
     private final Matrix3f nMatrix = new Matrix3f();
 
-    private static final float TRANSLATE_Z_BLOCK = -10F;
-    private static final float TRANSLATE_Z_GRID = -17.25F;
+    private static final float TRANSLATE_Z_BLOCK = -8.2F;
+    private static final float TRANSLATE_Z_GRID = -34.5F;
+    private static final float MOVE_UNITS = 2F;
+    private Vector3f movement = new Vector3f(0F, 0F, TRANSLATE_Z_BLOCK);
+
     private static final boolean IS_BLENDING = true;
     private static final boolean IS_LIGHTING = true;
 
@@ -64,13 +69,18 @@ public class DimensionControl extends AbstractThreeD {
 
     private double lastTime = 0.0D;
     private double elapsed = 0.0D;
-    private double rotationTime = 0.0D;
 
     private RotationType rotationType = RotationType.NONE;
+    private double rotationTime = 0.0D;
     private boolean isRotating = false;
-
     private float deltaRot = 0.0F;
     private float absoluteRot = 0.0F;
+
+    private MovementType movementType = MovementType.NONE;
+    private double movementTime = 0.0D;
+    private boolean isMoving = false;
+    private float deltaMov = 0.0F;
+    private float absoluteMov = 0.0F;
 
     private Quat4f oldQuat = createQuaternionFromEuler(0F, 0F, 0F);
 
@@ -90,7 +100,6 @@ public class DimensionControl extends AbstractThreeD {
         blockTexture.dispose();
         keyboardManager.unmanage();
         getShader().dispose();
-
         getGl().disable(EnableCap.BLEND);
         getGl().enable(EnableCap.DEPTH_TEST);
     }
@@ -105,7 +114,7 @@ public class DimensionControl extends AbstractThreeD {
         if (blockMesh != null) {
             blockMesh.dispose();
         }
-        blockMesh = new StaticMesh(getGl(), BlockMesh.getMesh(shape));
+        blockMesh = new StaticMesh(getGl(), BlockMesh.getMesh(shape)); //XXX
         blockMesh.setPositionIndex(getShader().getAttributeLocation("aVertexPosition"));
         blockMesh.setNormalIndex(getShader().getAttributeLocation("aVertexNormal"));
         blockMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
@@ -114,7 +123,7 @@ public class DimensionControl extends AbstractThreeD {
     @Override
     protected final void initImpl() {
         getSurface().setFocus(true);
-        initImpl(Shape.LeftScrewTetracube);
+        initImpl(Shape.Cube);
     }
 
     private void initImpl(final Shape shape) {
@@ -168,8 +177,6 @@ public class DimensionControl extends AbstractThreeD {
         //Block
         updateShape(shape);
 
-//      MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
-
         lastTime = System.currentTimeMillis();
     }
 
@@ -181,20 +188,34 @@ public class DimensionControl extends AbstractThreeD {
         elapsed = currTime - lastTime;
         lastTime = currTime;
 
+        if (!isRotating && !isMoving) {
+            deltaRot = 0.0F;
+            deltaMov = 0.0F;
+            rotationType = RotationType.NONE;
+            movementType = MovementType.NONE;
+            handleKeys();
+        }
         if (isRotating) {
             rotationTime += elapsed;
-            if (rotationTime >= ROTATION_DURATION) {
-                deltaRot = RIGHT_ANGLE - absoluteRot; //last step
+            if (rotationTime >= ROTATION_DURATION) { //last step
+                deltaRot = RIGHT_ANGLE - absoluteRot;
                 absoluteRot = 0.0F;
                 isRotating = false;
             } else {
                 deltaRot = Double.valueOf((RIGHT_ANGLE * elapsed / ROTATION_DURATION)).floatValue();
                 absoluteRot += deltaRot;
             }
-        } else {
-            deltaRot = 0.0F;
-            rotationType = RotationType.NONE;
-            handleKeys();
+        }
+        if (isMoving) {
+            movementTime += elapsed;
+            if (movementTime >= MOVEMENT_DURATION) { //last step
+                deltaMov = MOVE_UNITS - absoluteMov;
+                absoluteMov = 0.0F;
+                isMoving = false;
+            } else {
+                deltaMov = Double.valueOf((MOVE_UNITS * elapsed / MOVEMENT_DURATION)).floatValue();
+                absoluteMov += deltaMov;
+            }
         }
 
         if (gridTexture != null) {
@@ -217,14 +238,29 @@ public class DimensionControl extends AbstractThreeD {
     }
 
     private void drawBlock() {
-//      getStatusLabel().setText("Type:" + rotationType + " delta: " + deltaRot + " abs: " + absoluteRot);
         MODELVIEW.push();
-        MODELVIEW.translate(0F, 0F, TRANSLATE_Z_BLOCK);
+
+        //move
+        if (movementType.equals(MovementType.PLUS_X)) {
+            movement.setX(movement.getX() + deltaMov);
+        } else if (movementType.equals(MovementType.MINUS_X)) {
+            movement.setX(movement.getX() - deltaMov);
+        } else if (movementType.equals(MovementType.PLUS_Y)) {
+            movement.setY(movement.getY() + deltaMov);
+        } else if (movementType.equals(MovementType.MINUS_Y)) {
+            movement.setY(movement.getY() - deltaMov);
+        } else if (movementType.equals(MovementType.MINUS_Z)) {
+            movement.setZ(movement.getZ() - deltaMov);
+        }
+        MODELVIEW.translate(movement);
+
+        //rotate
         final Quat4f quat = oldQuat;
         final Quat4f deltaQuat = createQuaternionFromAxisAndAngle(rotationType.getVector3f(), deltaRot);
         quat.mul(deltaQuat);
-        MODELVIEW.rotate(quat);
         oldQuat = quat;
+        MODELVIEW.rotate(quat);
+
         setModelMatrixUniforms();
         prepareBlenderAndLighting(BLOCK_COLOR_VECTOR);
         blockMesh.draw();
@@ -287,38 +323,52 @@ public class DimensionControl extends AbstractThreeD {
     }
 
     private void handleKeys() {
-        if (isRotating) {
-            return;
-        }
+        rotationType = RotationType.NONE;
+        movementType = MovementType.NONE;
         if (keyboardManager.isButtonDown(Key.Q.getKeyCode())) {
             rotationType = RotationType.PLUS_X;
             prepareRotation();
-        }
-        if (keyboardManager.isButtonDown(Key.W.getKeyCode())) {
+        } else if (keyboardManager.isButtonDown(Key.W.getKeyCode())) {
             rotationType = RotationType.PLUS_Y;
             prepareRotation();
-        }
-        if (keyboardManager.isButtonDown(Key.E.getKeyCode())) {
+        } else if (keyboardManager.isButtonDown(Key.E.getKeyCode())) {
             rotationType = RotationType.PLUS_Z;
             prepareRotation();
-        }
-        if (keyboardManager.isButtonDown(Key.A.getKeyCode())) {
+        } else if (keyboardManager.isButtonDown(Key.A.getKeyCode())) {
             rotationType = RotationType.MINUS_X;
             prepareRotation();
-        }
-        if (keyboardManager.isButtonDown(Key.S.getKeyCode())) {
+        } else if (keyboardManager.isButtonDown(Key.S.getKeyCode())) {
             rotationType = RotationType.MINUS_Y;
             prepareRotation();
-        }
-        if (keyboardManager.isButtonDown(Key.D.getKeyCode())) {
+        } else if (keyboardManager.isButtonDown(Key.D.getKeyCode())) {
             rotationType = RotationType.MINUS_Z;
             prepareRotation();
+        } else if (keyboardManager.isButtonDown(Key.UP.getKeyCode())) {
+            movementType = MovementType.PLUS_Y;
+            prepareMovement();
+        } else if (keyboardManager.isButtonDown(Key.DOWN.getKeyCode())) {
+            movementType = MovementType.MINUS_Y;
+            prepareMovement();
+        } else if (keyboardManager.isButtonDown(Key.LEFT.getKeyCode())) {
+            movementType = MovementType.MINUS_X;
+            prepareMovement();
+        } else if (keyboardManager.isButtonDown(Key.RIGHT.getKeyCode())) {
+            movementType = MovementType.PLUS_X;
+            prepareMovement();
+        } else if (keyboardManager.isButtonDown(Key.SPACE.getKeyCode())) {
+            movementType = MovementType.MINUS_Z;
+            prepareMovement();
         }
     }
 
     private void prepareRotation() {
         isRotating = true;
         rotationTime = 0.0D;
+    }
+
+    private void prepareMovement() {
+        isMoving = true;
+        movementTime = 0.0D;
     }
 
     interface Resources extends ClientBundleWithLookup {

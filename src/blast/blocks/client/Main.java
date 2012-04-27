@@ -32,7 +32,7 @@ public class Main implements EntryPoint {
     private final Label fpsLabel = new Label();
     private final ListBox shapeSelector = new ListBox();
     private final Label statusLabel = new Label();
-    private final Label commandsLabel = new Label("Press Q,W,E and A,S,D to rotate the object.");
+    private final Label commandsLabel = new Label("Press Q,W,E and A,S,D to rotate, arrow keys to move and space to drop the object.");
 
     private Surface3D surface = new Surface3D(WIDTH, HEIGHT, new WebGLContextAttributes() {
         { setStencilEnable(true); }

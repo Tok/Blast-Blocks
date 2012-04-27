@@ -4,11 +4,63 @@ import gwt.g3d.client.primitive.MeshData;
 import java.util.ArrayList;
 import java.util.List;
 import blast.blocks.shared.Dir;
+import blast.blocks.shared.enums.Axis;
 import blast.blocks.shared.enums.Direction;
 
 public abstract class AbstractMeshCreator {
     private static final int NORMALS_PER_ROW = 12;
     private static final int TRIANGLES_PER_ROW = 6;
+
+    public static MeshData mirrorMesh(final MeshData mesh, final Axis... axis) {
+        final MeshData mirroredMesh = mesh;
+        final float[] mirroredVertices = new float[mesh.getVertices().length];
+        final float[] mirroredNormals = new float[mesh.getNormals().length];
+        boolean hasX = false;
+        boolean hasY = false;
+        boolean hasZ = false;
+        for (Axis ax : axis) {
+            if (ax.equals(Axis.X)) {
+                hasX = true;
+            } else if (ax.equals(Axis.Y)) {
+                hasY = true;
+            } else if (ax.equals(Axis.Z)) {
+                hasZ = true;
+            }
+        }
+        for (int index = 0; index < mesh.getVertices().length; index++) {
+            if (index % 3 == 0) {
+                if (hasX) {
+                    mirroredVertices[index] = mesh.getVertices()[index] * -1F;
+                    mirroredNormals[index] = mesh.getNormals()[index] * -1F;
+                } else {
+                    mirroredVertices[index] = mesh.getVertices()[index];
+                    mirroredNormals[index] = mesh.getNormals()[index];
+                }
+            }
+            if (index % 3 == 1) {
+                if (hasY) {
+                    mirroredVertices[index] = mesh.getVertices()[index] * -1F;
+                    mirroredNormals[index] = mesh.getNormals()[index] * -1F;
+                } else {
+                    mirroredVertices[index] = mesh.getVertices()[index];
+                    mirroredNormals[index] = mesh.getNormals()[index];
+                }
+            }
+            if (index % 3 == 2) {
+                if (hasZ) {
+                    mirroredVertices[index] = mesh.getVertices()[index] * -1F;
+                    mirroredNormals[index] = mesh.getNormals()[index] * -1F;
+                } else {
+                    mirroredVertices[index] = mesh.getVertices()[index];
+                    mirroredNormals[index] = mesh.getNormals()[index];
+                }
+            }
+            index++;
+        }
+        mirroredMesh.setVertices(mirroredVertices);
+        mirroredMesh.setNormals(mirroredNormals);
+        return mirroredMesh;
+    }
 
     protected static MeshData makeStretchedBox(final float w, final float h, final float d) {
         final float[] boxVerts = {

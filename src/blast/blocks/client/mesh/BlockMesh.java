@@ -100,13 +100,14 @@ public final class BlockMesh extends AbstractMeshCreator {
     private static MeshData makeRightScrewTetracube() {
         MeshData mesh = makeLeftScrewTetracube();
         MeshData result = mesh;
-        float[] vertices = new float[mesh.getVertices().length];
-        int index = 0;
-        for (float fl : mesh.getVertices()) {
-            vertices[index] = fl * -1F;
-            index++;
+        final float[] vertices = new float[mesh.getVertices().length];
+        final float[] normals = new float[mesh.getNormals().length];
+        for (int index = 0; index < mesh.getVertices().length; index++) {
+            vertices[index] = mesh.getVertices()[index] * -1F;
+            normals[index] = mesh.getNormals()[index] * -1F;
         }
         result.setVertices(vertices);
+        result.setNormals(normals);
         return result;
     }
 

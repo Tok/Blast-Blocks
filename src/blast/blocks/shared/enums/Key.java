@@ -7,7 +7,12 @@ public enum Key {
     E(69),
     A(65),
     S(83),
-    D(68);
+    D(68),
+    UP(38),
+    DOWN(40),
+    LEFT(37),
+    RIGHT(39),
+    SPACE(32);
 
     private final int keyCode;
 
