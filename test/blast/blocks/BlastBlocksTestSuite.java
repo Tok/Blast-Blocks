@@ -12,6 +12,7 @@ public class BlastBlocksTestSuite extends TestCase {
         suite.addTestSuite(BoxesTester.class);
         suite.addTestSuite(RotationTester.class);
 
+        int testCasesCounter = 0;
         int testCounter = 0;
         int successCounter = 0;
         int failCounter = 0;
@@ -19,8 +20,8 @@ public class BlastBlocksTestSuite extends TestCase {
         while (tests.hasMoreElements()) {
             final TestResult result = new TestResult();
             final Test test = tests.nextElement();
+            testCasesCounter += test.countTestCases();
             test.run(result);
-
             testCounter++;
             if (result.wasSuccessful()) {
                 System.out.println("OK: " + test.toString());
@@ -31,6 +32,7 @@ public class BlastBlocksTestSuite extends TestCase {
             }
         }
 
+        System.out.println("Total Testcases: " + testCasesCounter);
         System.out.println("Total Tests: " + testCounter);
         System.out.println("Total Wins: " + successCounter);
         System.out.println("Total Fails: " + failCounter);
