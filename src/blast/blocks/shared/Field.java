@@ -1,6 +1,7 @@
 package blast.blocks.shared;
 
 import blast.blocks.shared.enums.MovementType;
+import blast.blocks.shared.enums.RotationType;
 import blast.blocks.shared.enums.Shape;
 
 
@@ -9,6 +10,10 @@ public class Field {
 
     public Field(final int depth, final int rows, final int columns) {
         cells = new Cell[depth][rows][columns];
+        resetField();
+    }
+
+    private void resetField() {
         for (int level = 0; level < getDepth(); level++) {
             for (int row = 0; row < getRows(); row++) {
                 for (int column = 0; column < getColumns(); column++) {
@@ -39,7 +44,7 @@ public class Field {
     }
 
     private void resetCell(final int level, final int row, final int column) {
-        cells[level][row][column] = new Cell(false, false, "");
+        cells[level][row][column] = new Cell(false, false, Cell.RotationAnglePosition.NONE, "");
     }
 
     public final boolean isLevelFull(final int depth) {
@@ -53,10 +58,20 @@ public class Field {
         return true;
     }
 
-    public final void add(final Shape shape) {
+    public final void add(final Shape shape, final int levelOffset, final int rowOffset, final int columnOffset) {
+        System.out.println("Adding " + shape);
+        resetField();
         if (shape.equals(Shape.Cube)) {
-            setCell(0, 1, 1, new Cell(true, false, ""));
-            System.out.println("Cube added.");
+            setCell(levelOffset, rowOffset + 1, columnOffset + 1, new Cell(true, false, Cell.RotationAnglePosition.CENTER, ""));
+        } else if (shape.equals(Shape.DualcubeX)) {
+            setCell(levelOffset, rowOffset + 1, columnOffset + 0, new Cell(true, false, Cell.RotationAnglePosition.NONE, ""));
+            setCell(levelOffset, rowOffset + 1, columnOffset + 1, new Cell(true, false, Cell.RotationAnglePosition.CENTER, ""));
+//      } else if (shape.equals(Shape.DualcubeY)) {
+//          setCell(0, 0, 1, new Cell(true, false, ""));
+//          setCell(0, 1, 1, new Cell(true, false, ""));
+//      } else if (shape.equals(Shape.DualcubeZ)) {
+//          setCell(0, 1, 1, new Cell(true, false, ""));
+//          setCell(1, 1, 1, new Cell(true, false, ""));
         }
     }
 
@@ -64,25 +79,21 @@ public class Field {
         if (movementType.equals(MovementType.PLUS_X)) {
             for (int level = 0; level < getDepth(); level++) {
                 for (int row = 0; row < getRows(); row++) {
-                    Cell cell = getCell(level, row, getColumns() - 1); //right column
+                    Cell cell = getCell(level, row, getColumns() - 1); //Right column
                     if (cell.isOccupied() && !cell.isFixed()) {
                         return false; //movement impossible
                     }
                 }
             }
-            move(movementType);
-            return true;
         } else if (movementType.equals(MovementType.MINUS_X)) {
             for (int level = 0; level < getDepth(); level++) {
                 for (int row = 0; row < getRows(); row++) {
-                    Cell cell = getCell(level, row, 0); //left column
+                    Cell cell = getCell(level, row, 0); //Left column
                     if (cell.isOccupied() && !cell.isFixed()) {
                         return false; //movement impossible
                     }
                 }
             }
-            move(movementType);
-            return true;
         } else if (movementType.equals(MovementType.PLUS_Y)) {
             for (int level = 0; level < getDepth(); level++) {
                 for (int column = 0; column < getColumns(); column++) {
@@ -92,8 +103,6 @@ public class Field {
                     }
                 }
             }
-            move(movementType);
-            return true;
         } else if (movementType.equals(MovementType.MINUS_Y)) {
             for (int level = 0; level < getDepth(); level++) {
                 for (int column = 0; column < getColumns(); column++) {
@@ -103,8 +112,6 @@ public class Field {
                     }
                 }
             }
-            move(movementType);
-            return true;
         } else if (movementType.equals(MovementType.MINUS_Z)) {
             for (int row = 0; row < getRows(); row++) {
                 for (int column = 0; column < getColumns(); column++) {
@@ -114,10 +121,9 @@ public class Field {
                     }
                 }
             }
-            move(movementType);
-            return true;
         }
-        return false;
+        move(movementType);
+        return true;
     }
 
     private void move(final MovementType movementType) {
@@ -183,4 +189,40 @@ public class Field {
             }
         }
     }
+
+    public final boolean tryRotate(final RotationType rotationType) {
+        System.out.println(rotationType);
+        if (rotationType.equals(RotationType.PLUS_X)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.MINUS_X)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.PLUS_Y)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.MINUS_Y)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.PLUS_Z)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.MINUS_Z)) {
+            assert true;
+        }
+        rotate(rotationType);
+        return true;
+    }
+
+    private void rotate(final RotationType rotationType) {
+        if (rotationType.equals(RotationType.PLUS_X)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.MINUS_X)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.PLUS_Y)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.MINUS_Y)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.PLUS_Z)) {
+            assert true;
+        } else if (rotationType.equals(RotationType.MINUS_Z)) {
+            assert true;
+        }
+    }
+
 }

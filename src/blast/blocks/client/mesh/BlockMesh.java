@@ -4,6 +4,7 @@ import gwt.g3d.client.primitive.MeshData;
 import java.util.ArrayList;
 import java.util.List;
 import blast.blocks.shared.Dir;
+import blast.blocks.shared.enums.Axis;
 import blast.blocks.shared.enums.Direction;
 import blast.blocks.shared.enums.Shape;
 
@@ -15,6 +16,12 @@ public final class BlockMesh extends AbstractMeshCreator {
             return makeCube();
         } else if (shape.equals(Shape.Dualcube)) {
             return makeDualcube();
+        } else if (shape.equals(Shape.DualcubeX)) {
+            return makeExcentricDualcube(Axis.X);
+//      } else if (shape.equals(Shape.DualcubeY)) {
+//          return makeDualcube(Axis.Y);
+//      } else if (shape.equals(Shape.DualcubeZ)) {
+//          return makeDualcube(Axis.Z);
         } else if (shape.equals(Shape.ITricube)) {
             return makeITricube();
         } else if (shape.equals(Shape.LTricube)) {
@@ -353,6 +360,32 @@ public final class BlockMesh extends AbstractMeshCreator {
 
     private static MeshData makeCube() {
         return makeStretchedBox(1F, 1F, 1F);
+    }
+
+    private static MeshData makeExcentricDualcube(final Axis axis) {
+        if (axis.equals(Axis.X)) {
+            return makeDualcubeX(2F, 1F, 1F);
+//      } else if (axis.equals(Axis.Y)) {
+//          return makeDualcubeY();
+//      } else if (axis.equals(Axis.Z)) {
+//          return makeDualcubeZ();
+        }
+        throw new IllegalArgumentException("Axis doesnt exist: " + axis);
+    }
+
+    protected static MeshData makeDualcubeX(final float w, final float h, final float d) {
+        final float[] boxVerts = {
+        // X        Y   Z        X   Y   Z        X   Y   Z        X   Y   Z
+          -w + 1F, -h,  d,  w + 1F, -h,  d,  w + 1F,  h,  d, -w + 1F,  h,  d,  // Front face
+          -w + 1F, -h, -d, -w + 1F,  h, -d,  w + 1F,  h, -d,  w + 1F, -h, -d,  // Back face
+          -w + 1F,  h, -d, -w + 1F,  h,  d,  w + 1F,  h,  d,  w + 1F,  h, -d,  // Top face
+          -w + 1F, -h, -d,  w + 1F, -h, -d,  w + 1F, -h,  d, -w + 1F, -h,  d,  // Bottom face
+           w + 1F, -h, -d,  w + 1F,  h, -d,  w + 1F,  h,  d,  w + 1F, -h,  d,  // Right face
+          -w + 1F, -h, -d, -w + 1F, -h,  d, -w + 1F,  h,  d, -w + 1F,  h, -d,  // Left face
+        };
+        final float[] coords = getDualcubeCoords(w, h, d);
+        final float[] normals = getCubeNormals();
+        return new MeshData(boxVerts, getTriangles(normals.length / NORMALS_PER_ROW), normals, coords);
     }
 
     private static MeshData makeDualcube() {

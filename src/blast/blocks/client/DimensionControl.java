@@ -37,8 +37,8 @@ import com.google.gwt.resources.client.ResourceException;
 import com.google.gwt.user.client.Window;
 
 public class DimensionControl extends AbstractThreeD {
-    private static final double ROTATION_DURATION = 500D;
-    private static final double MOVEMENT_DURATION = 500D;
+    private static final double ROTATION_DURATION = 200D;
+    private static final double MOVEMENT_DURATION = 200D;
 
     private final Matrix3f nMatrix = new Matrix3f();
 
@@ -46,6 +46,7 @@ public class DimensionControl extends AbstractThreeD {
     private static final float TRANSLATE_Z_GRID = -34.5F;
     private static final float MOVE_UNITS = 2F;
     private Vector3f movement = new Vector3f(0F, 0F, TRANSLATE_Z_BLOCK);
+    private Shape shape;
 
     private static final boolean IS_BLENDING = true;
     private static final boolean IS_LIGHTING = true;
@@ -109,8 +110,12 @@ public class DimensionControl extends AbstractThreeD {
         return Resources.INSTANCE;
     }
 
+    public final void createNewShape(final Shape shape) {
+        this.shape = shape;
+        createShape();
+    }
 
-    public final void createShape(final Shape shape) {
+    private void createShape() {
         if (blockMesh != null) {
             blockMesh.dispose();
         }
@@ -120,7 +125,18 @@ public class DimensionControl extends AbstractThreeD {
         blockMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
 
         //add to field
-        field.add(shape);
+        movement = new Vector3f(0F, 0F, TRANSLATE_Z_BLOCK);
+        if (shape.equals(Shape.DualcubeX)) {
+            movement.setX(movement.getX() - 2F);
+        }
+//        if (shape.equals(Shape.DualcubeY)) {
+//            movement.setY(movement.getY() + 1F);
+//        }
+//        if (shape.equals(Shape.DualcubeZ)) {
+//            movement.setZ(movement.getZ() - 1F);
+//        }
+
+        field.add(shape, 0, 0, 0);
     }
 
     @Override
@@ -174,7 +190,8 @@ public class DimensionControl extends AbstractThreeD {
         gridMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
 
         //Block
-        createShape(Shape.Cube);
+        this.shape = Shape.DualcubeX;
+        createShape();
 
         lastTime = System.currentTimeMillis();
     }
@@ -328,23 +345,35 @@ public class DimensionControl extends AbstractThreeD {
         rotationType = RotationType.NONE;
         movementType = MovementType.NONE;
         if (keyboardManager.isButtonDown(Key.Q.getKeyCode())) {
-            rotationType = RotationType.PLUS_X;
-            prepareRotation();
+            if (field.tryRotate(RotationType.PLUS_X)) {
+                rotationType = RotationType.PLUS_X;
+                prepareRotation();
+            }
         } else if (keyboardManager.isButtonDown(Key.W.getKeyCode())) {
-            rotationType = RotationType.PLUS_Y;
-            prepareRotation();
+            if (field.tryRotate(RotationType.PLUS_Y)) {
+                rotationType = RotationType.PLUS_Y;
+                prepareRotation();
+            }
         } else if (keyboardManager.isButtonDown(Key.E.getKeyCode())) {
-            rotationType = RotationType.PLUS_Z;
-            prepareRotation();
+            if (field.tryRotate(RotationType.PLUS_Z)) {
+                rotationType = RotationType.PLUS_Z;
+                prepareRotation();
+            }
         } else if (keyboardManager.isButtonDown(Key.A.getKeyCode())) {
-            rotationType = RotationType.MINUS_X;
-            prepareRotation();
+            if (field.tryRotate(RotationType.MINUS_X)) {
+                rotationType = RotationType.MINUS_X;
+                prepareRotation();
+            }
         } else if (keyboardManager.isButtonDown(Key.S.getKeyCode())) {
-            rotationType = RotationType.MINUS_Y;
-            prepareRotation();
+            if (field.tryRotate(RotationType.MINUS_Y)) {
+                rotationType = RotationType.MINUS_Y;
+                prepareRotation();
+            }
         } else if (keyboardManager.isButtonDown(Key.D.getKeyCode())) {
-            rotationType = RotationType.MINUS_Z;
-            prepareRotation();
+            if (field.tryRotate(RotationType.MINUS_Z)) {
+                rotationType = RotationType.MINUS_Z;
+                prepareRotation();
+            }
         } else if (keyboardManager.isButtonDown(Key.UP.getKeyCode())) {
             if (field.tryMove(MovementType.PLUS_Y)) {
                 movementType = MovementType.PLUS_Y;

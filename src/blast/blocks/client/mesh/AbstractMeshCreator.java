@@ -8,8 +8,8 @@ import blast.blocks.shared.enums.Axis;
 import blast.blocks.shared.enums.Direction;
 
 public abstract class AbstractMeshCreator {
-    private static final int NORMALS_PER_ROW = 12;
-    private static final int TRIANGLES_PER_ROW = 6;
+    protected static final int NORMALS_PER_ROW = 12;
+    protected static final int TRIANGLES_PER_ROW = 6;
 
     public static MeshData mirrorMesh(final MeshData mesh, final Axis... axis) {
         final MeshData mirroredMesh = mesh;
@@ -72,15 +72,25 @@ public abstract class AbstractMeshCreator {
            w, -h, -d,  w,  h, -d,  w,  h,  d,  w, -h,  d,  // Right face
           -w, -h, -d, -w, -h,  d, -w,  h,  d, -w,  h, -d,  // Left face
         };
-        final float[] coords = {
-            0, 0, w, 0, w, h, 0, h,  // Front face
-            w, 0, w, h, 0, h, 0, 0,  // Back face
-            0, d, 0, 0, w, 0, w, d,  // Top face
-            w, d, 0, d, 0, 0, w, 0,  // Bottom face
-            d, 0, d, h, 0, h, 0, 0,  // Right face
-            0, 0, d, 0, d, h, 0, h,  // Left face
-        };
+        final float[] coords = getDualcubeCoords(w, h, d);
+        final float[] normals = getCubeNormals();
 
+        return new MeshData(boxVerts, getTriangles(normals.length / NORMALS_PER_ROW), normals, coords);
+    }
+
+    protected static float[] getDualcubeCoords(final float w, final float h, final float d) {
+        final float[] coords = {
+            0, 0, w, 0, w, h, 0, h, // Front face
+            w, 0, w, h, 0, h, 0, 0, // Back face
+            0, d, 0, 0, w, 0, w, d, // Top face
+            w, d, 0, d, 0, 0, w, 0, // Bottom face
+            d, 0, d, h, 0, h, 0, 0, // Right face
+            0, 0, d, 0, d, h, 0, h, // Left face
+        };
+        return coords;
+    }
+
+    protected static float[] getCubeNormals() {
         final List<Dir> normalsDir = new ArrayList<Dir>();
         normalsDir.add(Dir.valueOf(Direction.Front, 1F));
         normalsDir.add(Dir.valueOf(Direction.Back, 1F));
@@ -89,8 +99,7 @@ public abstract class AbstractMeshCreator {
         normalsDir.add(Dir.valueOf(Direction.Right, 1F));
         normalsDir.add(Dir.valueOf(Direction.Left, 1F));
         final float[] normals = getNormalsFor(normalsDir);
-
-        return new MeshData(boxVerts, getTriangles(normalsDir.size()), normals, coords);
+        return normals;
     }
 
     protected static float[] getNormalsFor(final List<Dir> dirs) {
