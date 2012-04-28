@@ -1,6 +1,7 @@
 package blast.blocks.shared;
 
 import java.util.Arrays;
+import blast.blocks.shared.exception.RotationImpossibleException;
 
 public final class MatrixRotator {
     public enum RotationDirection {
@@ -30,13 +31,12 @@ public final class MatrixRotator {
                         rotateToRow = row;
                     }
                     if (col > rotateToColumn) {
-                        rotateToColumn = row;
+                        rotateToColumn = col;
                     }
                 }
             }
         }
-//      printMatrix(matrix);
-//      System.out.println("---------------");
+        final boolean isSymmetric = ((rotateToRow - rotateFromRow) == (rotateToColumn - rotateFromColumn));
 
         //isolate parts to rotate
         final Object[][] matrixPart = new Object[rotateToRow - rotateFromRow + 1][rotateToColumn - rotateFromColumn + 1];
@@ -49,15 +49,29 @@ public final class MatrixRotator {
         //rotate parts
         final Object[][] rotatedMatrixPart = rotateConcentric(matrixPart, rd);
 
-        //reintegrate parts
-        final Object[][] rotatedMatrix = matrix;
-        for (int row = rotateFromRow; row <= rotateToRow; row++) {
-            for (int col = rotateFromColumn; col <= rotateToColumn; col++) {
-                rotatedMatrix[row][col] = rotatedMatrixPart[row - rotateFromRow][col - rotateFromColumn];
+        //init new matrix
+        final Object[][] rotatedMatrix = new Object[matrix.length][matrix[0].length];
+        for (int row = 0; row < matrix.length; row++) {
+            for (int col = 0; col < matrix[0].length; col++) {
+                rotatedMatrix[row][col] = " "; //TODO change to Cell
             }
         }
-//      printMatrix(rotatedMatrix);
-//      System.out.println("===============");
+
+        //reintegrate parts
+        for (int row = 0; row < rotatedMatrixPart.length; row++) {
+            for (int col = 0; col < rotatedMatrixPart[0].length; col++) {
+                try {
+                    if (isSymmetric) {
+                        rotatedMatrix[row + rotateFromRow][col + rotateFromColumn] = rotatedMatrixPart[row][col];
+                    } else {
+                        //row and column offset switched!
+                        rotatedMatrix[row + rotateFromColumn][col + rotateFromRow] = rotatedMatrixPart[row][col];
+                    }
+                } catch (final ArrayIndexOutOfBoundsException aioobe) {
+                    throw new RotationImpossibleException();
+                }
+            }
+        }
 
         //return result
         return rotatedMatrix;
@@ -73,7 +87,7 @@ public final class MatrixRotator {
                     rotated[col][m - 1 - row] = matrix[row][col];
                 }
                 if (rd.equals(RotationDirection.COUNTERCLOCKWISE)) {
-                    rotated[m - 1 - col][row] = matrix[row][col];
+                    rotated[n - 1 - col][row] = matrix[row][col];
                 }
             }
         }

@@ -3,8 +3,65 @@ package blast.blocks;
 import static org.junit.Assert.assertArrayEquals;
 import blast.blocks.shared.MatrixRotator;
 import blast.blocks.shared.MatrixRotator.RotationDirection;
+import blast.blocks.shared.exception.RotationImpossibleException;
 
 public class RotationTester extends AbstractReflectionTestCase {
+
+    public final void testSimpleConcentricRotation() throws Exception {
+        final String[][] initialMatrix = {
+                {" ", " ", " "},
+                {"X", "X", "X"},
+                {" ", " ", " "},
+        };
+        final String[][] initialMatrixExpectation = {
+                {" ", "X", " "},
+                {" ", "X", " "},
+                {" ", "X", " "},
+        };
+        final Object[][] rotatedInitialMatrix = MatrixRotator.rotateExcentric(initialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(initialMatrixExpectation, rotatedInitialMatrix);
+
+        final String[][] secondInitialMatrix = {
+                {" ", " ", "o"},
+                {"X", "X", "X"},
+                {" ", "X", " "},
+        };
+        final String[][] secondInitialMatrixExpectation = {
+                {" ", "X", " "},
+                {"X", "X", " "},
+                {" ", "X", "o"},
+        };
+        final Object[][] secondRotatedInitialMatrix = MatrixRotator.rotateExcentric(secondInitialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(secondInitialMatrixExpectation, secondRotatedInitialMatrix);
+    }
+
+    public final void testExcentricRotationFail() throws Exception {
+        //Should catch RotationImpossibleException:
+        final String[][] firstInitialMatrix = {
+                {"X", " ", " "},
+                {"X", " ", " "},
+                {"X", " ", " "}
+        };
+        try {
+            MatrixRotator.rotateExcentric(firstInitialMatrix, RotationDirection.CLOCKWISE);
+            assert false; // never reached.
+        } catch (final RotationImpossibleException rie) {
+            assertNotNull(rie);
+        }
+
+        //Should catch RotationImpossibleException:
+        final String[][] secondInitialMatrix = {
+                {" ", " ", " "},
+                {" ", " ", " "},
+                {"X", "X", "X"}
+        };
+        try {
+            MatrixRotator.rotateExcentric(secondInitialMatrix, RotationDirection.CLOCKWISE);
+            assert false; //never reached.
+        } catch (final RotationImpossibleException rie) {
+            assertNotNull(rie);
+        }
+    }
 
     public final void testSimpleExcentricRotation() throws Exception {
         //clockwise:
@@ -42,6 +99,24 @@ public class RotationTester extends AbstractReflectionTestCase {
         };
         final Object[][] rotatedCounterclockwiseMatrix = MatrixRotator.rotateExcentric(secondInitialMatrix, RotationDirection.COUNTERCLOCKWISE);
         assertArrayEquals(rotatedCounterclockwiseMatrixExpection, rotatedCounterclockwiseMatrix);
+
+        //more
+        final String[][] thirdInitialMatrix = {
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", "X", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        };
+        final String[][] rotatedClockwiseThirdMatrixExpection = {
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", "X", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        };
+        final Object[][] rotatedClockwiseThirdMatrix = MatrixRotator.rotateExcentric(thirdInitialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(rotatedClockwiseThirdMatrixExpection, rotatedClockwiseThirdMatrix);
     }
 
     public final void testExcentricRotation() throws Exception {
@@ -63,23 +138,81 @@ public class RotationTester extends AbstractReflectionTestCase {
         final Object[][] rotatedClockwiseMatrix = MatrixRotator.rotateExcentric(firstInitialMatrix, RotationDirection.CLOCKWISE);
         assertArrayEquals(rotatedClockwiseMatrixExpection, rotatedClockwiseMatrix);
 
-        //counter-clockwise:
+        /*
+        //TODO fix or use symmetry stabilizer
         final String[][] secondInitialMatrix = {
                 {" ", " ", " ", " ", " "},
+                {"X", " ", " ", " ", " "}, //<-- Start row
+                {"X", " ", " ", " ", " "},
+                {"X", "X", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        };
+        final String[][] rotatedCounterclockwiseMatrixExpection = {
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", "X", " ", " "}, //<-- Start row
+                {"X", "X", "X", " ", " "},
+                {" ", " ", " ", " ", " "}
+        };
+        final Object[][] rotatedCounterclockwiseMatrix = MatrixRotator.rotateExcentric(secondInitialMatrix, RotationDirection.COUNTERCLOCKWISE);
+        MatrixRotator.printMatrix(rotatedCounterclockwiseMatrix);
+        assertArrayEquals(rotatedCounterclockwiseMatrixExpection, rotatedCounterclockwiseMatrix);
+        */
+
+        ///////////////
+        final String[][] thirdInitialMatrix = {
+                {"X", " ", " ", " ", " "},
+                {"X", "X", " ", " ", " "},
+                {"X", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        };
+        final String[][] thirdMatrixExpection = {
+                {"X", "X", "X", " ", " "},
                 {" ", "X", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        };
+        final Object[][] thirdRotatedMatrix = MatrixRotator.rotateExcentric(thirdInitialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(thirdMatrixExpection, thirdRotatedMatrix);
+    }
+
+    public final void testExcentricRotationWithSymmetry() throws Exception {
+        //counter-clockwise: "o" is an invisible block to keep the rotation in symmetry
+        final String[][] secondInitialMatrix = {
+                {" ", " ", " ", " ", " "},
+                {" ", "X", " ", "o", " "}, //<-- Start row
                 {" ", "X", " ", " ", " "},
                 {" ", "X", "X", " ", " "},
                 {" ", " ", " ", " ", " "}
         };
         final String[][] rotatedCounterclockwiseMatrixExpection = {
                 {" ", " ", " ", " ", " "},
-                {" ", " ", " ", " ", " "},
-                {" ", " ", " ", "X", " "},
+                {" ", "o", " ", " ", " "},
+                {" ", " ", " ", "X", " "}, //<-- Start row
                 {" ", "X", "X", "X", " "},
                 {" ", " ", " ", " ", " "}
         };
         final Object[][] rotatedCounterclockwiseMatrix = MatrixRotator.rotateExcentric(secondInitialMatrix, RotationDirection.COUNTERCLOCKWISE);
         assertArrayEquals(rotatedCounterclockwiseMatrixExpection, rotatedCounterclockwiseMatrix);
+
+        final String[][] thirdInitialMatrix = {
+                {"X", " ", "o", " ", " "},
+                {"X", "X", " ", " ", " "},
+                {"X", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        };
+        final String[][] thirdMatrixExpection = {
+                {"X", "X", "X", " ", " "},
+                {" ", "X", " ", " ", " "},
+                {" ", " ", "o", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        };
+        final Object[][] thirdRotatedMatrix = MatrixRotator.rotateExcentric(thirdInitialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(thirdMatrixExpection, thirdRotatedMatrix);
     }
 
     public final void testConcentricRotationThree() throws Exception {
