@@ -1,38 +1,27 @@
 package blast.blocks.shared;
 
-public class Cell {
-    public enum RotationAnglePosition {
-        NONE,
-        CENTER,
-        BOTTOM_RIGHT;
-    }
+import blast.blocks.shared.enums.BlockType;
 
-    private boolean isOccupied;
-    private boolean isFixed;
-    private RotationAnglePosition rap;
+public class Cell {
+    private BlockType type;
     private String color;
 
-    public Cell(final boolean isOccupied, final boolean isFixed, final RotationAnglePosition rap, final String color) {
-        this.isOccupied = isOccupied;
-        this.isFixed = isFixed;
-        this.rap = rap;
+    public Cell(final String typeString, final String color) {
+        this.type = BlockType.returnBlock(typeString);
         this.color = color;
     }
 
-    public final boolean isOccupied() {
-        return isOccupied;
+    public Cell(final BlockType type, final String color) {
+        this.type = type;
+        this.color = color;
     }
 
-    public final void setOccupied(final boolean isOccupied) {
-        this.isOccupied = isOccupied;
+    public final BlockType getBlockType() {
+        return type;
     }
 
-    public final boolean isFixed() {
-        return isFixed;
-    }
-
-    public final void setFixed(final boolean isFixed) {
-        this.isFixed = isFixed;
+    public final void setBlockType(final BlockType type) {
+        this.type = type;
     }
 
     public final String getColor() {
@@ -43,16 +32,8 @@ public class Cell {
         this.color = color;
     }
 
-    public final RotationAnglePosition getRap() {
-        return rap;
-    }
-
-    public final void setRap(final RotationAnglePosition rap) {
-        this.rap = rap;
-    }
-
     @Override
     public final String toString() {
-        return isOccupied + " " + isFixed;
+        return type.toString();
     }
 }
