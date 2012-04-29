@@ -10,10 +10,13 @@ public final class MatrixRotator {
         COUNTERCLOCKWISE;
     }
 
-    private MatrixRotator() {
+    private int rotateFromRow = 0;
+    private int rotateFromColumn = 0;
+
+    public MatrixRotator() {
     }
 
-    private static Cell[][] balanceMatrix(final Cell[][] matrix) {
+    private Cell[][] balanceMatrix(final Cell[][] matrix) {
         int rows = matrix.length;
         int cols = matrix[0].length;
         int initSquare;
@@ -47,6 +50,7 @@ public final class MatrixRotator {
         final Cell[][] balanced = new Cell[initSquare][initSquare];
         try {
             if (initSquare == rows + 2) { //append two rows and return
+                rotateFromRow--;
                 for (int row = 1; row < initSquare - 1; row++) {
                     for (int col = 0; col < initSquare; col++) {
                         balanced[0][col] = new Cell(BlockType.STABILIZER, "");
@@ -57,6 +61,7 @@ public final class MatrixRotator {
                 return balanced;
             }
             if (initSquare == cols + 2) { //append two cols and return
+                rotateFromColumn--;
                 for (int row = 0; row < initSquare; row++) {
                     for (int col = 1; col < initSquare - 1; col++) {
                         balanced[row][0] = new Cell(BlockType.STABILIZER, "");
@@ -68,6 +73,7 @@ public final class MatrixRotator {
             }
             if (rows < cols) {
                 if (firstRowCount > lastRowCount) { // pre append row
+                    rotateFromRow--;
                     for (int col = 0; col < initSquare; col++) {
                         balanced[0][col] = new Cell(BlockType.STABILIZER, "");
                         for (int row = 1; row < initSquare; row++) {
@@ -84,6 +90,7 @@ public final class MatrixRotator {
                 }
             } else { //cols >= rows
                 if (firstColCount > lastColCount) { // pre append col
+                    rotateFromColumn--;
                     for (int row = 0; row < initSquare; row++) {
                         balanced[row][0] = new Cell(BlockType.STABILIZER, "");
                         for (int col = 1; col < initSquare; col++) {
@@ -105,11 +112,11 @@ public final class MatrixRotator {
         return balanced;
     }
 
-    public static Cell[][] rotateExcentric(final Cell[][] matrix, final RotationDirection rd) {
+    public Cell[][] rotateExcentric(final Cell[][] matrix, final RotationDirection rd) {
         //determine parts to rotate
-        int rotateFromRow = matrix.length;
+        rotateFromRow = matrix.length;
         int rotateToRow = 0;
-        int rotateFromColumn = matrix[0].length;
+        rotateFromColumn = matrix[0].length;
         int rotateToColumn = 0;
         for (int row = 0; row < matrix.length; row++) {
             for (int col = 0; col < matrix[0].length; col++) {
@@ -145,14 +152,6 @@ public final class MatrixRotator {
         final Cell[][] balancedMatrix;
         if (!isSymmetric) {
             balancedMatrix = balanceMatrix(matrixPart);
-            rotateFromRow = rotateFromRow - (balancedMatrix.length - matrixPart.length);
-            rotateFromColumn = rotateFromColumn - (balancedMatrix[0].length - matrixPart[0].length);
-            if (rotateFromRow < 0) {
-                rotateFromRow = 0;
-            }
-            if (rotateFromColumn < 0) {
-                rotateFromColumn = 0;
-            }
         } else {
             balancedMatrix = matrixPart;
         }
