@@ -39,6 +39,66 @@ public class RotationTester extends AbstractReflectionTestCase {
         assertArrayEquals(matrixExpectation, rotatedMatrix);
     }
 
+    public final void testSimpleConcentricRotationVerticalTwoClock() throws Exception {
+        final Cell[][] initialMatrix = Cell.createCellMatrix2D(new String[][] {
+                {" ", "X", " "},
+                {" ", "X", " "},
+                {" ", " ", " "}
+        });
+        final Cell[][] matrixExpectation = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", " "},
+                {"X", "X", " "},
+                {" ", " ", " "}
+        });
+        final Cell[][] rotatedMatrix = matrixRotator.rotateExcentric(initialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(matrixExpectation, rotatedMatrix);
+    }
+
+    public final void testSimpleConcentricRotationVerticalTwoCounterClock() throws Exception {
+        final Cell[][] initialMatrix = Cell.createCellMatrix2D(new String[][] {
+                {" ", "X", " "},
+                {" ", "X", " "},
+                {" ", " ", " "}
+        });
+        final Cell[][] matrixExpectation = Cell.createCellMatrix2D(new String[][] {
+                {"X", "X", " "},
+                {" ", " ", " "},
+                {" ", " ", " "}
+        });
+        final Cell[][] rotatedMatrix = matrixRotator.rotateExcentric(initialMatrix, RotationDirection.COUNTERCLOCKWISE);
+        assertArrayEquals(matrixExpectation, rotatedMatrix);
+    }
+
+    public final void testSimpleConcentricRotationVerticalTwoCounterClockRight() throws Exception {
+        final Cell[][] initialMatrix = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", "X"},
+                {" ", " ", "X"},
+                {" ", " ", " "}
+        });
+        final Cell[][] matrixExpectation = Cell.createCellMatrix2D(new String[][] {
+                {" ", "X", "X"},
+                {" ", " ", " "},
+                {" ", " ", " "}
+        });
+        final Cell[][] rotatedMatrix = matrixRotator.rotateExcentric(initialMatrix, RotationDirection.COUNTERCLOCKWISE);
+        assertArrayEquals(matrixExpectation, rotatedMatrix);
+    }
+
+    public final void testSimpleConcentricRotationVerticalTwoClockRight() throws Exception {
+        final Cell[][] initialMatrix = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", "X"},
+                {" ", " ", "X"},
+                {" ", " ", " "}
+        });
+        final Cell[][] matrixExpectation = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", " "},
+                {" ", "X", "X"},
+                {" ", " ", " "}
+        });
+        final Cell[][] rotatedMatrix = matrixRotator.rotateExcentric(initialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(matrixExpectation, rotatedMatrix);
+    }
+
     public final void testSimpleConcentricRotationNoStab() throws Exception {
         final Cell[][] secondInitialMatrix = Cell.createCellMatrix2D(new String[][] {
                 {" ", " ", " "},
@@ -64,6 +124,21 @@ public class RotationTester extends AbstractReflectionTestCase {
                 {" ", "X", " "},
                 {"X", "X", "X"},
                 {" ", " ", " "},
+        });
+        final Cell[][] secondRotatedInitialMatrix = matrixRotator.rotateExcentric(secondInitialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(secondInitialMatrixExpectation, secondRotatedInitialMatrix);
+    }
+
+    public final void testSimpleConcentricRotationBigT() throws Exception {
+        final Cell[][] secondInitialMatrix = Cell.createCellMatrix2D(new String[][] {
+                {"X", "X", "X"},
+                {" ", "X", " "},
+                {" ", "X", " "}
+        });
+        final Cell[][] secondInitialMatrixExpectation = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", "X"},
+                {"X", "X", "X"},
+                {" ", " ", "X"},
         });
         final Cell[][] secondRotatedInitialMatrix = matrixRotator.rotateExcentric(secondInitialMatrix, RotationDirection.CLOCKWISE);
         assertArrayEquals(secondInitialMatrixExpectation, secondRotatedInitialMatrix);
@@ -99,8 +174,22 @@ public class RotationTester extends AbstractReflectionTestCase {
         assertArrayEquals(initialMatrixExpectation, rotatedMatrix);
     }
 
+    public final void testSimpleConcentricRotationBigL() throws Exception {
+        final Cell[][] initialMatrix = Cell.createCellMatrix2D(new String[][] {
+                {"X", " ", " "},
+                {"X", " ", " "},
+                {"X", "X", "X"},
+        });
+        final Cell[][] initialMatrixExpectation = Cell.createCellMatrix2D(new String[][] {
+                {"X", "X", "X"},
+                {"X", " ", " "},
+                {"X", " ", " "},
+        });
+        final Cell[][] rotatedMatrix = matrixRotator.rotateExcentric(initialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(initialMatrixExpectation, rotatedMatrix);
+    }
+
     public final void testExcentricRotationFailLeft() throws Exception {
-        //Should catch RotationImpossibleException:
         final Cell[][] firstInitialMatrix = Cell.createCellMatrix2D(new String[][] {
                 {"X", " ", " "},
                 {"X", " ", " "},
@@ -115,7 +204,6 @@ public class RotationTester extends AbstractReflectionTestCase {
     }
 
     public final void testExcentricRotationFailBottom() throws Exception {
-        //Should catch RotationImpossibleException:
         final Cell[][] secondInitialMatrix = Cell.createCellMatrix2D(new String[][] {
                 {" ", " ", " "},
                 {" ", " ", " "},
@@ -268,6 +356,63 @@ public class RotationTester extends AbstractReflectionTestCase {
                 {" ", " ", " ", " ", " "},
                 {" ", " ", "X", " ", " "},
                 {"X", "X", "X", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        });
+        final Cell[][] rotatedMatrix = matrixRotator.rotateExcentric(initialMatrix, RotationDirection.COUNTERCLOCKWISE);
+        assertArrayEquals(rotatedMatrixExpection, rotatedMatrix);
+    }
+
+    public final void testExcentricRotationFiveI() throws Exception {
+        final Cell[][] initialMatrix = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "}
+        });
+        final Cell[][] rotatedMatrixExpection = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {"X", "X", "X", "X", "X"},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        });
+        final Cell[][] rotatedMatrix = matrixRotator.rotateExcentric(initialMatrix, RotationDirection.COUNTERCLOCKWISE);
+        assertArrayEquals(rotatedMatrixExpection, rotatedMatrix);
+    }
+
+    public final void testExcentricRotationClockwiseFourI() throws Exception {
+        final Cell[][] initialMatrix = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "},
+                {" ", " ", " ", " ", " "}
+        });
+        final Cell[][] rotatedMatrixExpection = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {"X", "X", "X", "X", " "},
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "}
+        });
+        final Cell[][] rotatedMatrix = matrixRotator.rotateExcentric(initialMatrix, RotationDirection.CLOCKWISE);
+        assertArrayEquals(rotatedMatrixExpection, rotatedMatrix);
+    }
+
+    public final void testExcentricRotationCounterClockwiseFourI() throws Exception {
+        final Cell[][] initialMatrix = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "},
+                {" ", " ", "X", " ", " "},
+                {" ", " ", " ", " ", " "}
+        });
+        final Cell[][] rotatedMatrixExpection = Cell.createCellMatrix2D(new String[][] {
+                {" ", " ", " ", " ", " "},
+                {" ", " ", " ", " ", " "},
+                {"X", "X", "X", "X", " "},
                 {" ", " ", " ", " ", " "},
                 {" ", " ", " ", " ", " "}
         });

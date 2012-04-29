@@ -16,16 +16,10 @@ public final class MatrixRotator {
     public MatrixRotator() {
     }
 
-    private Cell[][] balanceMatrix(final Cell[][] matrix) {
+    private Cell[][] balanceMatrix(final Cell[][] matrix, final RotationDirection rd) {
         int rows = matrix.length;
         int cols = matrix[0].length;
-        int initSquare;
-        if (rows > cols) {
-            initSquare = rows;
-        } else {
-            initSquare = cols;
-        }
-
+        int initSquare = Math.max(rows, cols);
         int firstRowCount = 0;
         int lastRowCount = 0;
         int firstColCount = 0;
@@ -49,9 +43,10 @@ public final class MatrixRotator {
 
         final Cell[][] balanced = new Cell[initSquare][initSquare];
         try {
-            if (initSquare == rows + 2) { //append two rows and return
-                rotateFromRow--;
+            //TODO remove redundancies!
+            if (initSquare == rows + 2) { //append one row before and one row after
                 for (int row = 1; row < initSquare - 1; row++) {
+                    rotateFromRow--;
                     for (int col = 0; col < initSquare; col++) {
                         balanced[0][col] = new Cell(BlockType.STABILIZER, "");
                         balanced[row][col] = matrix[row - 1][col];
@@ -59,13 +54,69 @@ public final class MatrixRotator {
                     }
                 }
                 return balanced;
-            }
-            if (initSquare == cols + 2) { //append two cols and return
-                rotateFromColumn--;
-                for (int row = 0; row < initSquare; row++) {
-                    for (int col = 1; col < initSquare - 1; col++) {
+            } else if (initSquare == cols + 2) { //append one col before and one after
+                for (int col = 1; col < initSquare - 1; col++) {
+                    rotateFromColumn--;
+                    for (int row = 0; row < initSquare; row++) {
                         balanced[row][0] = new Cell(BlockType.STABILIZER, "");
                         balanced[row][col] = matrix[row][col - 1];
+                        balanced[row][initSquare - 1] = new Cell(BlockType.STABILIZER, "");
+                    }
+                }
+                return balanced;
+            } else if (initSquare == rows + 3) { //append two rows before and one row after or vice versa
+                for (int row = 2; row < initSquare - 1; row++) {
+                    rotateFromRow -= 2;
+                    for (int col = 0; col < initSquare; col++) {
+                        balanced[0][col] = new Cell(BlockType.STABILIZER, "");
+                        if (rd.equals(RotationDirection.CLOCKWISE)) {
+                            balanced[1][col] = new Cell(BlockType.STABILIZER, "");
+                            balanced[row][col] = matrix[row - 2][col];
+                        } else {
+                            balanced[1][col] = matrix[row - 2][col];
+                            balanced[row][col] = new Cell(BlockType.STABILIZER, "");
+                        }
+                        balanced[initSquare - 1][col] = new Cell(BlockType.STABILIZER, "");
+                    }
+                }
+                return balanced;
+            } else if (initSquare == cols + 3) { //append two cols before and one after or vice versa
+                for (int col = 2; col < initSquare - 1; col++) {
+                    rotateFromColumn -= 2;
+                    for (int row = 0; row < initSquare; row++) {
+                        balanced[row][0] = new Cell(BlockType.STABILIZER, "");
+                        if (rd.equals(RotationDirection.CLOCKWISE)) {
+                            balanced[row][1] = new Cell(BlockType.STABILIZER, "");
+                            balanced[row][col] = matrix[row][col - 2];
+                        } else {
+                            balanced[row][1] = matrix[row][col - 2];
+                            balanced[row][col] = new Cell(BlockType.STABILIZER, "");
+                        }
+                        balanced[row][initSquare - 1] = new Cell(BlockType.STABILIZER, "");
+                    }
+                }
+                return balanced;
+            } else if (initSquare == rows + 4) { //append two rows before and two after
+                for (int row = 2; row < initSquare - 2; row++) {
+                    rotateFromRow -= 2;
+                    for (int col = 0; col < initSquare; col++) {
+                        balanced[0][col] = new Cell(BlockType.STABILIZER, "");
+                        balanced[1][col] = new Cell(BlockType.STABILIZER, "");
+                        balanced[row][col] = matrix[row - 2][col];
+                        balanced[initSquare - 2][col] = new Cell(BlockType.STABILIZER, "");
+                        balanced[initSquare - 1][col] = new Cell(BlockType.STABILIZER, "");
+                    }
+                }
+                return balanced;
+            }
+            if (initSquare == cols + 4) { //append two cols before and two after
+                for (int col = 2; col < initSquare - 2; col++) {
+                    rotateFromColumn -= 2;
+                    for (int row = 0; row < initSquare; row++) {
+                        balanced[row][0] = new Cell(BlockType.STABILIZER, "");
+                        balanced[row][1] = new Cell(BlockType.STABILIZER, "");
+                        balanced[row][col] = matrix[row][col - 2];
+                        balanced[row][initSquare - 2] = new Cell(BlockType.STABILIZER, "");
                         balanced[row][initSquare - 1] = new Cell(BlockType.STABILIZER, "");
                     }
                 }
@@ -121,18 +172,10 @@ public final class MatrixRotator {
         for (int row = 0; row < matrix.length; row++) {
             for (int col = 0; col < matrix[0].length; col++) {
                 if (matrix[row][col].getBlockType().isMovable()) { //has Element
-                    if (row < rotateFromRow) {
-                        rotateFromRow = row;
-                    }
-                    if (col < rotateFromColumn) {
-                        rotateFromColumn = col;
-                    }
-                    if (row > rotateToRow) {
-                        rotateToRow = row;
-                    }
-                    if (col > rotateToColumn) {
-                        rotateToColumn = col;
-                    }
+                    rotateFromRow = Math.min(row, rotateFromRow);
+                    rotateFromColumn = Math.min(col, rotateFromColumn);
+                    rotateToRow = Math.max(row, rotateToRow);
+                    rotateToColumn = Math.max(col, rotateToColumn);
                 }
             }
         }
@@ -151,7 +194,7 @@ public final class MatrixRotator {
         //keep symmetry if required
         final Cell[][] balancedMatrix;
         if (!isSymmetric) {
-            balancedMatrix = balanceMatrix(matrixPart);
+            balancedMatrix = balanceMatrix(matrixPart, rd);
         } else {
             balancedMatrix = matrixPart;
         }
