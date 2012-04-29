@@ -49,9 +49,10 @@ public class Field {
     }
 
     public final boolean isLevelFull(final int depth) {
+        //TODO make sure everything is fixed before calling this
         for (int row = 0; row < getRows(); row++) {
-            for (int column = 0; row < getColumns(); column++) {
-                if (!cells[depth][row][column].getBlockType().equals(BlockType.FIXED)) {
+            for (int column = 0; column < getColumns(); column++) {
+                if (!cells[depth][row][column].getBlockType().isFixed()) {
                     return false;
                 }
             }
@@ -81,7 +82,7 @@ public class Field {
             for (int level = 0; level < getDepth(); level++) {
                 for (int row = 0; row < getRows(); row++) {
                     Cell cell = getCell(level, row, getColumns() - 1); //Right column
-                    if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                    if (cell.getBlockType().isMovable()) {
                         return false; //movement impossible
                     }
                 }
@@ -90,7 +91,7 @@ public class Field {
             for (int level = 0; level < getDepth(); level++) {
                 for (int row = 0; row < getRows(); row++) {
                     Cell cell = getCell(level, row, 0); //Left column
-                    if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                    if (cell.getBlockType().isMovable()) {
                         return false; //movement impossible
                     }
                 }
@@ -99,7 +100,7 @@ public class Field {
             for (int level = 0; level < getDepth(); level++) {
                 for (int column = 0; column < getColumns(); column++) {
                     Cell cell = getCell(level, 0, column); //Top row
-                    if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                    if (cell.getBlockType().isMovable()) {
                         return false; //movement impossible
                     }
                 }
@@ -108,7 +109,7 @@ public class Field {
             for (int level = 0; level < getDepth(); level++) {
                 for (int column = 0; column < getColumns(); column++) {
                     Cell cell = getCell(level, getRows() - 1, column); //Bottom row
-                    if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                    if (cell.getBlockType().isMovable()) {
                         return false; //movement impossible
                     }
                 }
@@ -117,7 +118,7 @@ public class Field {
             for (int row = 0; row < getRows(); row++) {
                 for (int column = 0; column < getColumns(); column++) {
                     Cell cell = getCell(getDepth() - 1, row, column);
-                    if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                    if (cell.getBlockType().isMovable()) {
                         return false; //movement impossible
                     }
                 }
@@ -133,7 +134,7 @@ public class Field {
                 for (int row = 0; row < getRows(); row++) {
                     for (int column = getColumns() - 1; column >= 0; column--) { //Omit right column
                         final Cell cell = getCell(level, row, column);
-                        if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                        if (cell.getBlockType().isMovable()) {
                             resetCell(level, row, column);
                             setCell(level, row, column + 1, cell);
                         }
@@ -145,7 +146,7 @@ public class Field {
                 for (int row = 0; row < getRows(); row++) {
                     for (int column = 1; column < getColumns(); column++) { //Omit left column
                         final Cell cell = getCell(level, row, column);
-                        if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                        if (cell.getBlockType().isMovable()) {
                             resetCell(level, row, column);
                             setCell(level, row, column - 1, cell);
                         }
@@ -157,7 +158,7 @@ public class Field {
                 for (int row = 1; row < getRows(); row++) { //Omit top row
                     for (int column = 0; column < getColumns(); column++) {
                         final Cell cell = getCell(level, row, column);
-                        if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                        if (cell.getBlockType().isMovable()) {
                             resetCell(level, row, column);
                             setCell(level, row - 1, column, cell);
                         }
@@ -169,7 +170,7 @@ public class Field {
                 for (int row = getRows() - 1; row >= 0; row--) { //Omit bottom row
                     for (int column = 0; column < getColumns(); column++) {
                         final Cell cell = getCell(level, row, column);
-                        if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                        if (cell.getBlockType().isMovable()) {
                             resetCell(level, row, column);
                             setCell(level, row + 1, column, cell);
                         }
@@ -181,7 +182,7 @@ public class Field {
                 for (int row = 0; row < getRows(); row++) {
                     for (int column = 0; column < getColumns(); column++) {
                         final Cell cell = getCell(level, row, column);
-                        if (cell.getBlockType().equals(BlockType.BLOCK)) {
+                        if (cell.getBlockType().isMovable()) {
                             resetCell(level, row, column);
                             setCell(level + 1, row, column, cell);
                         }
