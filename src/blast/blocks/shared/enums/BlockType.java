@@ -5,8 +5,8 @@ public enum BlockType {
     BLOCK('X', true, true, false),
 //  ROTATION_CENTER('+', true, true, false),
     FIXED('#', true, false, true),
-    STABILIZER('o', false, true, false),
-    FIXED_STABILIZER('O', false, false, true);
+    STABILIZER('o', false, true, false);
+//  FIXED_STABILIZER('O', false, false, true);
 
     private char character;
     private boolean isBlock;
