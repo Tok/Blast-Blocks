@@ -270,31 +270,30 @@ public final class BlockMesh extends AbstractMeshCreator {
 
     private static MeshData makeLTertracube() {
         final float[] verts = {
-          // X   Y   Z   X   Y   Z   X   Y   Z   X   Y   Z
-            -2, -3,  1,  2, -3,  1,  2, -1,  1, -2, -1,  1,  // Lower Front face
-             0, -1,  1,  2, -1,  1,  2,  3,  1,  0,  3,  1,  // Upper Front face
-            -2, -3, -1, -2, -1, -1,  2, -1, -1,  2, -3, -1,  // Lower Back face
-             0, -1, -1,  2, -1, -1,  2,  3, -1,  0,  3, -1,  // Upper Back face
-            -2, -1, -1, -2, -1,  1,  0, -1,  1,  0, -1, -1,  // Lower Top face
-             0,  3, -1,  2,  3, -1,  2,  3,  1,  0,  3,  1,  // Upper Top face
-            -2, -3, -1,  2, -3, -1,  2, -3,  1, -2, -3,  1,  // Bottom face
-             2, -3, -1,  2,  3, -1,  2,  3,  1,  2, -3,  1,  // Right face
-            -2, -3, -1, -2, -3,  1, -2, -1,  1, -2, -1, -1,  // Outer Left face
-             0, -1, -1,  0, -1,  1,  0,  3,  1,  0,  3, -1,  // Inner Left face
+                // X   Y   Z   X   Y   Z   X   Y   Z   X   Y   Z
+                  -1, -3,  1,  3, -3,  1,  3, -1,  1, -1, -1,  1,  // Lower Front face
+                  -1, -1,  1,  1, -1,  1,  1,  3,  1, -1,  3,  1,  // Upper Front face
+                  -1, -3, -1, -1, -1, -1,  3, -1, -1,  3, -3, -1,  // Lower Back face
+                  -1, -1, -1,  1, -1, -1,  1,  3, -1, -1,  3, -1,  // Upper Back face
+                   1, -1, -1,  1, -1,  1,  3, -1,  1,  3, -1, -1,  // Lower Top face
+                  -1,  3, -1,  1,  3, -1,  1,  3,  1, -1,  3,  1,  // Upper Top face
+                  -1, -3, -1,  3, -3, -1,  3, -3,  1, -1, -3,  1,  // Bottom face
+                  -1, -3, -1, -1,  3, -1, -1,  3,  1, -1, -3,  1,  // Left face
+                   3, -3, -1,  3, -3,  1,  3, -1,  1,  3, -1, -1,  // Outer Right face
+                   1, -1, -1,  1, -1,  1,  1,  3,  1,  1,  3, -1,  // Inner Right face
         };
         final float[] coords = {
-            0, 0, 2, 0, 2, 1, 0, 1,  // Lower Front face
-            0, 0, 1, 0, 1, 2, 0, 2,  // Upper Front face
-            2, 0, 2, 1, 0, 1, 0, 0,  // Lower Back face
-            2, 0, 2, 1, 0, 1, 0, 0,  // Upper Back face
-            0, 1, 0, 0, 1, 0, 1, 1,  // Lower Top face
-            0, 1, 0, 0, 1, 0, 1, 1,  // Upper Top face
-            2, 1, 0, 1, 0, 0, 2, 0,  // Bottom face
-            1, 0, 1, 3, 0, 3, 0, 0,  // Right face
-            0, 0, 1, 0, 1, 1, 0, 1,  // Outer Left face
-            0, 0, 1, 0, 1, 2, 0, 2,  // Inner Left face
+                  0, 0, 2, 0, 2, 1, 0, 1,  // Lower Front face
+                  0, 0, 1, 0, 1, 2, 0, 2,  // Upper Front face
+                  2, 0, 2, 1, 0, 1, 0, 0,  // Lower Back face
+                  2, 0, 2, 1, 0, 1, 0, 0,  // Upper Back face
+                  0, 1, 0, 0, 1, 0, 1, 1,  // Lower Top face
+                  0, 1, 0, 0, 1, 0, 1, 1,  // Upper Top face
+                  2, 1, 0, 1, 0, 0, 2, 0,  // Bottom face
+                  1, 0, 1, 3, 0, 3, 0, 0,  // Left face
+                  0, 0, 1, 0, 1, 1, 0, 1,  // Outer Right face
+                  0, 0, 1, 0, 1, 2, 0, 2,  // Inner Right face
         };
-
         final List<Dir> normalsDir = new ArrayList<Dir>();
         normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Lower Front face
         normalsDir.add(Dir.valueOf(Direction.Front, 1F));  // Upper Front face
@@ -303,9 +302,9 @@ public final class BlockMesh extends AbstractMeshCreator {
         normalsDir.add(Dir.valueOf(Direction.Top, 1F));   // Lower Top face
         normalsDir.add(Dir.valueOf(Direction.Top, 1F));    // Upper Top face
         normalsDir.add(Dir.valueOf(Direction.Bottom, 1F)); // Bottom face
-        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Right face
-        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Outer Left face
-        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Inner Left face
+        normalsDir.add(Dir.valueOf(Direction.Right, 1F));  // Left face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Outer Right face
+        normalsDir.add(Dir.valueOf(Direction.Left, 1F));   // Inner Right face
         final float[] normals = getNormalsFor(normalsDir);
 
         return new MeshData(verts, getTriangles(normalsDir.size()), normals, coords);

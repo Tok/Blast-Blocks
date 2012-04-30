@@ -1,13 +1,16 @@
 package blast.blocks.shared;
 
+import blast.blocks.shared.MatrixRotator.RotationDirection;
 import blast.blocks.shared.enums.BlockType;
 import blast.blocks.shared.enums.MovementType;
 import blast.blocks.shared.enums.RotationType;
 import blast.blocks.shared.enums.Shape;
+import blast.blocks.shared.exception.RotationImpossibleException;
 
 
 public class Field {
     private Cell[][][] cells;
+    private MatrixRotator matrixRotator = new MatrixRotator();
 
     public Field(final int depth, final int rows, final int columns) {
         cells = new Cell[depth][rows][columns];
@@ -68,13 +71,17 @@ public class Field {
         } else if (shape.equals(Shape.DualcubeX)) {
             setCell(levelOffset, rowOffset + 1, columnOffset + 0, new Cell(BlockType.BLOCK, ""));
             setCell(levelOffset, rowOffset + 1, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
-//      } else if (shape.equals(Shape.DualcubeY)) {
-//          setCell(0, 0, 1, new Cell(true, false, ""));
-//          setCell(0, 1, 1, new Cell(true, false, ""));
-//      } else if (shape.equals(Shape.DualcubeZ)) {
-//          setCell(0, 1, 1, new Cell(true, false, ""));
-//          setCell(1, 1, 1, new Cell(true, false, ""));
+        } else if (shape.equals(Shape.ITricube)) {
+            setCell(levelOffset, rowOffset + 1, columnOffset + 0, new Cell(BlockType.BLOCK, ""));
+            setCell(levelOffset, rowOffset + 1, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
+            setCell(levelOffset, rowOffset + 1, columnOffset + 2, new Cell(BlockType.BLOCK, ""));
+        } else if (shape.equals(Shape.LTetracube)) {
+            setCell(levelOffset, rowOffset + 0, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
+            setCell(levelOffset, rowOffset + 1, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
+            setCell(levelOffset, rowOffset + 2, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
+            setCell(levelOffset, rowOffset + 2, columnOffset + 2, new Cell(BlockType.BLOCK, ""));
         }
+        MatrixRotator.printMatrix3D(cells);
     }
 
     public final boolean tryMove(final MovementType movementType) {
@@ -194,37 +201,25 @@ public class Field {
 
     public final boolean tryRotate(final RotationType rotationType) {
         System.out.println(rotationType);
-        if (rotationType.equals(RotationType.PLUS_X)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.MINUS_X)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.PLUS_Y)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.MINUS_Y)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.PLUS_Z)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.MINUS_Z)) {
-            assert true;
+        try {
+            if (rotationType.equals(RotationType.PLUS_X)) { //FIXME
+                assert true;
+            } else if (rotationType.equals(RotationType.MINUS_X)) {
+                assert true;
+            } else if (rotationType.equals(RotationType.PLUS_Y)) {
+                assert true;
+            } else if (rotationType.equals(RotationType.MINUS_Y)) {
+                assert true;
+            } else if (rotationType.equals(RotationType.PLUS_Z)) {
+                cells[0] = matrixRotator.rotateExcentric(cells[0], RotationDirection.COUNTERCLOCKWISE);
+            } else if (rotationType.equals(RotationType.MINUS_Z)) {
+                cells[0] = matrixRotator.rotateExcentric(cells[0], RotationDirection.CLOCKWISE);
+            }
+        } catch (RotationImpossibleException rie) {
+            return false;
         }
-        rotate(rotationType);
+        MatrixRotator.printMatrix2D(cells[0]);
         return true;
-    }
-
-    private void rotate(final RotationType rotationType) {
-        if (rotationType.equals(RotationType.PLUS_X)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.MINUS_X)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.PLUS_Y)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.MINUS_Y)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.PLUS_Z)) {
-            assert true;
-        } else if (rotationType.equals(RotationType.MINUS_Z)) {
-            assert true;
-        }
     }
 
 }

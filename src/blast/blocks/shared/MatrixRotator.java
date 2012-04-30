@@ -16,7 +16,7 @@ public final class MatrixRotator {
     public MatrixRotator() {
     }
 
-    private Cell[][] balanceMatrix(final Cell[][] matrix, final RotationDirection rd) {
+    private Cell[][] balanceMatrix(final Cell[][] matrix, final RotationDirection rd) throws RotationImpossibleException {
         int rows = matrix.length;
         int cols = matrix[0].length;
         int initSquare = Math.max(rows, cols);
@@ -163,7 +163,7 @@ public final class MatrixRotator {
         return balanced;
     }
 
-    public Cell[][] rotateExcentric(final Cell[][] matrix, final RotationDirection rd) {
+    public Cell[][] rotateExcentric(final Cell[][] matrix, final RotationDirection rd) throws RotationImpossibleException {
         //determine parts to rotate
         rotateFromRow = matrix.length;
         int rotateToRow = 0;
@@ -244,10 +244,20 @@ public final class MatrixRotator {
         return rotated;
     }
 
-    public static void printMatrix(final Cell[][] matrix) {
-        for (Cell[] row : matrix) {
+    public static void printMatrix2D(final Cell[][] matrix) {
+        for (final Cell[] row : matrix) {
             System.out.println(Arrays.toString(row));
         }
+    }
+
+    public static void printMatrix3D(final Cell[][][] matrix) {
+        for (final Cell[][] row : matrix) {
+            System.out.println("---------");
+            for (final Cell[] col : row) {
+                System.out.println(Arrays.toString(col));
+            }
+        }
+        System.out.println("=========");
     }
 
 }

@@ -1,6 +1,6 @@
 package blast.blocks.shared.exception;
 
-public class RotationImpossibleException extends RuntimeException {
+public class RotationImpossibleException extends Exception {
     private static final long serialVersionUID = 3005526281776039829L;
 
     public RotationImpossibleException() {

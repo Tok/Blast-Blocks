@@ -190,7 +190,7 @@ public class DimensionControl extends AbstractThreeD {
         gridMesh.setTexCoordIndex(getShader().getAttributeLocation("aTextureCoord"));
 
         //Block
-        this.shape = Shape.DualcubeX;
+        this.shape = Shape.LTetracube;
         createShape();
 
         lastTime = System.currentTimeMillis();
