@@ -126,7 +126,7 @@ public class DimensionControl extends AbstractThreeD {
 
         //add to field
         movement = new Vector3f(0F, 0F, TRANSLATE_Z_BLOCK);
-        if (shape.equals(Shape.DualcubeX)) {
+        if (shape.equals(Shape.Dualcube)) {
             movement.setX(movement.getX() - 2F);
         }
 //        if (shape.equals(Shape.DualcubeY)) {

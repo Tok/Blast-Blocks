@@ -4,7 +4,7 @@ package blast.blocks.shared.enums;
 public enum Shape {
     Cube(1, true),
     Dualcube(2, true),
-    DualcubeX(2, false),
+//  DualcubeX(2, false),
 //  DualcubeY(2, false),
 //  DualcubeZ(2, false),
     ITricube(3, true),

@@ -16,8 +16,8 @@ public final class BlockMesh extends AbstractMeshCreator {
             return makeCube();
         } else if (shape.equals(Shape.Dualcube)) {
             return makeDualcube();
-        } else if (shape.equals(Shape.DualcubeX)) {
-            return makeExcentricDualcube(Axis.X);
+//        } else if (shape.equals(Shape.DualcubeX)) {
+//            return makeExcentricDualcube(Axis.X);
 //      } else if (shape.equals(Shape.DualcubeY)) {
 //          return makeDualcube(Axis.Y);
 //      } else if (shape.equals(Shape.DualcubeZ)) {
@@ -361,6 +361,7 @@ public final class BlockMesh extends AbstractMeshCreator {
         return makeStretchedBox(1F, 1F, 1F);
     }
 
+    @SuppressWarnings("unused")
     private static MeshData makeExcentricDualcube(final Axis axis) {
         if (axis.equals(Axis.X)) {
             return makeDualcubeX(2F, 1F, 1F);

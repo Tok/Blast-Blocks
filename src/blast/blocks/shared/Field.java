@@ -68,7 +68,7 @@ public class Field {
         resetField();
         if (shape.equals(Shape.Cube)) {
             setCell(levelOffset, rowOffset + 1, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
-        } else if (shape.equals(Shape.DualcubeX)) {
+        } else if (shape.equals(Shape.Dualcube)) {
             setCell(levelOffset, rowOffset + 1, columnOffset + 0, new Cell(BlockType.BLOCK, ""));
             setCell(levelOffset, rowOffset + 1, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
         } else if (shape.equals(Shape.ITricube)) {
@@ -76,9 +76,14 @@ public class Field {
             setCell(levelOffset, rowOffset + 1, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
             setCell(levelOffset, rowOffset + 1, columnOffset + 2, new Cell(BlockType.BLOCK, ""));
         } else if (shape.equals(Shape.LTetracube)) {
+//            setCell(levelOffset, rowOffset + 0, columnOffset + 0, new Cell(BlockType.STATIC_STABILIZER, ""));
+//            setCell(levelOffset, rowOffset + 1, columnOffset + 0, new Cell(BlockType.STATIC_STABILIZER, ""));
+//            setCell(levelOffset, rowOffset + 2, columnOffset + 0, new Cell(BlockType.STATIC_STABILIZER, ""));
             setCell(levelOffset, rowOffset + 0, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
             setCell(levelOffset, rowOffset + 1, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
             setCell(levelOffset, rowOffset + 2, columnOffset + 1, new Cell(BlockType.BLOCK, ""));
+//            setCell(levelOffset, rowOffset + 0, columnOffset + 2, new Cell(BlockType.STATIC_STABILIZER, ""));
+//            setCell(levelOffset, rowOffset + 1, columnOffset + 2, new Cell(BlockType.STATIC_STABILIZER, ""));
             setCell(levelOffset, rowOffset + 2, columnOffset + 2, new Cell(BlockType.BLOCK, ""));
         }
         MatrixRotator.printMatrix3D(cells);
@@ -202,24 +207,83 @@ public class Field {
     public final boolean tryRotate(final RotationType rotationType) {
         System.out.println(rotationType);
         try {
-            if (rotationType.equals(RotationType.PLUS_X)) { //FIXME
-                assert true;
+            if (rotationType.equals(RotationType.PLUS_X)) {
+                rotateX(RotationDirection.CLOCKWISE);
             } else if (rotationType.equals(RotationType.MINUS_X)) {
-                assert true;
+                rotateX(RotationDirection.COUNTERCLOCKWISE);
             } else if (rotationType.equals(RotationType.PLUS_Y)) {
-                assert true;
+                rotateY(RotationDirection.CLOCKWISE);
             } else if (rotationType.equals(RotationType.MINUS_Y)) {
-                assert true;
+                rotateY(RotationDirection.COUNTERCLOCKWISE);
             } else if (rotationType.equals(RotationType.PLUS_Z)) {
                 cells[0] = matrixRotator.rotateExcentric(cells[0], RotationDirection.COUNTERCLOCKWISE);
             } else if (rotationType.equals(RotationType.MINUS_Z)) {
                 cells[0] = matrixRotator.rotateExcentric(cells[0], RotationDirection.CLOCKWISE);
             }
         } catch (RotationImpossibleException rie) {
+            System.out.println(rie);
             return false;
         }
-        MatrixRotator.printMatrix2D(cells[0]);
+        MatrixRotator.printMatrix3D(cells);
         return true;
+    }
+
+    private void rotateY(final RotationDirection rd) throws RotationImpossibleException {
+        final Cell[][][] rotated = new Cell[getRows()][getDepth()][getColumns()];
+        for (int row = 0; row < getRows(); row++) {
+            final Cell[][] cutoff = getRowCutoff(row);
+            rotated[row] = matrixRotator.rotateExcentric(cutoff, rd);
+        }
+        reintegrateRows(rotated);
+    }
+
+    private void rotateX(final RotationDirection rd) throws RotationImpossibleException {
+        final Cell[][][] rotated = new Cell[getRows()][getDepth()][getColumns()];
+        for (int column = 0; column < getColumns(); column++) {
+            final Cell[][] cutoff = getColumnCutoff(column);
+            rotated[column] = matrixRotator.rotateExcentric(cutoff, rd);
+        }
+        reintegrateColumns(rotated);
+    }
+
+    private Cell[][] getRowCutoff(final int row) {
+        final Cell[][] cutoff = new Cell[getDepth()][getColumns()];
+        for (int level = 0; level < getDepth(); level++) {
+            for (int column = 0; column < getColumns(); column++) {
+                cutoff[level][column] = cells[level][row][column];
+            }
+        }
+        return cutoff;
+    }
+
+    private void reintegrateRows(final Cell[][][] rotatedCutoff) {
+        for (int level = 0; level < getDepth(); level++) {
+            for (int row = 0; row < getRows(); row++) {
+                for (int column = 0; column < getColumns(); column++) {
+                    cells[level][row][column] = rotatedCutoff[row][level][column];
+                }
+            }
+        }
+    }
+
+    private Cell[][] getColumnCutoff(final int column) {
+        final Cell[][] cutoff = new Cell[getDepth()][getRows()];
+        for (int level = 0; level < getDepth(); level++) {
+            for (int row = 0; row < getRows(); row++) {
+                cutoff[level][row] = cells[level][row][column];
+            }
+        }
+        return cutoff;
+    }
+
+    private void reintegrateColumns(final Cell[][][] rotatedCutoff) {
+        for (int level = 0; level < getDepth(); level++) {
+            for (int row = 0; row < getRows(); row++) {
+                for (int column = 0; column < getColumns(); column++) {
+                    cells[level][row][column] = rotatedCutoff[column][level][row];
+                }
+            }
+        }
     }
 
 }
