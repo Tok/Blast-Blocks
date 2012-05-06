@@ -4,9 +4,7 @@ public enum BlockType {
     EMPTY(' ', false, false, false),
     BLOCK('X', true, true, false),
     FIXED('#', true, false, true),
-    DYNAMIC_STABILIZER('o', false, true, false),
-    STATIC_STABILIZER('O', false, true, false);
-//  FIXED_STABILIZER('@', false, false, true);
+    CENTER('+', true, true, false);
 
     private char character;
     private boolean isBlock;

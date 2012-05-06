@@ -45,10 +45,10 @@ public class Cell {
 
     public static Cell[][][] createCellMatrix3D(final String[][][] types) {
         final Cell[][][] cells = new Cell[types.length][types[0].length][types[0][0].length];
-        for (int col = 0; col < types.length; col++) {
+        for (int level = 0; level < types.length; level++) {
             for (int row = 0; row < types[0].length; row++) {
-                for (int level = 0; level < types[0][0].length; level++) {
-                    cells[row][col][level] = new Cell(types[row][col][level], "");
+                for (int col = 0; col < types[0][0].length; col++) {
+                    cells[level][row][col] = new Cell(types[level][row][col], "");
                 }
             }
         }

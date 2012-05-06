@@ -10,7 +10,8 @@ public class BlastBlocksTestSuite extends TestCase {
     public final void testSuite() throws Exception {
         final TestSuite suite = new TestSuite();
         suite.addTestSuite(BoxesTester.class);
-        suite.addTestSuite(RotationTester.class);
+        suite.addTestSuite(RotationTester2D.class);
+        suite.addTestSuite(RotationTester3D.class);
 
         int testCasesCounter = 0;
         int testCounter = 0;
